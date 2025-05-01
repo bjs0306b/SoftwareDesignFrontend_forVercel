@@ -20,12 +20,24 @@ interface Student {
   img: string;
 }
 
+interface FeedbackItem {
+  GRADE: string;
+  BEHAVIOR: string;
+  ATTENDANCE: string;
+  ATTITUDE: string;
+}
+
 interface FeedbackReportProps {
   student: Student;
   grade: string;
+  feedbacks: FeedbackItem;
 }
 
-const FeedbackReport: React.FC<FeedbackReportProps> = ({ student, grade }) => {
+const FeedbackReport: React.FC<FeedbackReportProps> = ({
+  student,
+  grade,
+  feedbacks,
+}) => {
   return (
     <MainContainer>
       <Header>
@@ -34,64 +46,29 @@ const FeedbackReport: React.FC<FeedbackReportProps> = ({ student, grade }) => {
         </p>
         <TitleArea>
           <h1>{student.name} 학생</h1>
-          <p>상담 내역 보고서</p>
+          <p>피드백 보고서</p>
         </TitleArea>
       </Header>
       <DescriptionArea>
         <Description>{grade}학년 피드백 내역</Description>
         <Line />
       </DescriptionArea>
+
       <FeedbackArea>
         <FeedbackTitle>성적</FeedbackTitle>
-        <FeedbackContent>
-          Lorem ipsum dolor sit amet consectetur. Pharetra urna mauris vel elit
-          diam tortor porta. Faucibus dui amet tellus adipiscing. Eget sit massa
-          ullamcorper lectus in vel purus vel. Non auctor tellus ac ut eu mattis
-          laoreet. Pellentesque arcu metus elementum orci sit tellus elit.
-          Turpis nulla egestas eget lacus in etiam. Ultricies vitae pulvinar
-          augue pulvinar ut vulputate at nisl non. Lorem in at curabitur ipsum
-          hac malesuada. Est massa quis facilisi egestas amet rhoncus donec
-          egestas elementum.
-        </FeedbackContent>
+        <FeedbackContent>{feedbacks.GRADE || "내용 없음"}</FeedbackContent>
       </FeedbackArea>
       <FeedbackArea>
         <FeedbackTitle>행동</FeedbackTitle>
-        <FeedbackContent>
-          Lorem ipsum dolor sit amet consectetur. Pharetra urna mauris vel elit
-          diam tortor porta. Faucibus dui amet tellus adipiscing. Eget sit massa
-          ullamcorper lectus in vel purus vel. Non auctor tellus ac ut eu mattis
-          laoreet. Pellentesque arcu metus elementum orci sit tellus elit.
-          Turpis nulla egestas eget lacus in etiam. Ultricies vitae pulvinar
-          augue pulvinar ut vulputate at nisl non. Lorem in at curabitur ipsum
-          hac malesuada. Est massa quis facilisi egestas amet rhoncus donec
-          egestas elementum.
-        </FeedbackContent>
+        <FeedbackContent>{feedbacks.BEHAVIOR || "내용 없음"}</FeedbackContent>
       </FeedbackArea>
       <FeedbackArea>
         <FeedbackTitle>출결</FeedbackTitle>
-        <FeedbackContent>
-          Lorem ipsum dolor sit amet consectetur. Pharetra urna mauris vel elit
-          diam tortor porta. Faucibus dui amet tellus adipiscing. Eget sit massa
-          ullamcorper lectus in vel purus vel. Non auctor tellus ac ut eu mattis
-          laoreet. Pellentesque arcu metus elementum orci sit tellus elit.
-          Turpis nulla egestas eget lacus in etiam. Ultricies vitae pulvinar
-          augue pulvinar ut vulputate at nisl non. Lorem in at curabitur ipsum
-          hac malesuada. Est massa quis facilisi egestas amet rhoncus donec
-          egestas elementum.
-        </FeedbackContent>
+        <FeedbackContent>{feedbacks.ATTENDANCE || "내용 없음"}</FeedbackContent>
       </FeedbackArea>
       <FeedbackArea>
         <FeedbackTitle>태도</FeedbackTitle>
-        <FeedbackContent>
-          Lorem ipsum dolor sit amet consectetur. Pharetra urna mauris vel elit
-          diam tortor porta. Faucibus dui amet tellus adipiscing. Eget sit massa
-          ullamcorper lectus in vel purus vel. Non auctor tellus ac ut eu mattis
-          laoreet. Pellentesque arcu metus elementum orci sit tellus elit.
-          Turpis nulla egestas eget lacus in etiam. Ultricies vitae pulvinar
-          augue pulvinar ut vulputate at nisl non. Lorem in at curabitur ipsum
-          hac malesuada. Est massa quis facilisi egestas amet rhoncus donec
-          egestas elementum.
-        </FeedbackContent>
+        <FeedbackContent>{feedbacks.ATTITUDE || "내용 없음"}</FeedbackContent>
       </FeedbackArea>
     </MainContainer>
   );

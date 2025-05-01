@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import axios from "../api/axiosInstance";
 import {
   Line,
@@ -33,6 +33,12 @@ interface StudentGrade {
   semester: number;
 }
 
+interface FeedbackItem {
+  schoolYear: number;
+  category: "GRADE" | "BEHAVIOR" | "ATTENDANCE" | "ATTITUDE";
+  content: string;
+}
+
 interface ScoreRow {
   subject: string;
   score: number;
@@ -54,7 +60,7 @@ type CounselingExcelRow = {
 type FeedbackExcelRow = {
   항목: string;
   내용: string;
-}; 
+};
 
 const subjects = ["국어", "영어", "수학", "과학", "사회"];
 
@@ -67,9 +73,21 @@ const ReportPage: React.FC = () => {
 
   //성적 보고서 용
   const [semesterTableData, setSemesterTableData] = useState<ScoreRow[]>([]);
-  const [radarSemesterData, setRadarSemesterData] = useState<{ name: string; value: number }[]>([]);
+  const [radarSemesterData, setRadarSemesterData] = useState<
+    { name: string; value: number }[]
+  >([]);
   const selectedStudent = useStudentStore((state) => state.selectedStudent);
   const schoolId = useAuthStore((state) => state.schoolId);
+
+  //피드백 보고서 용
+  const [feedbacks, setFeedbacks] = useState<
+    Record<FeedbackItem["category"], string>
+  >({
+    GRADE: "",
+    BEHAVIOR: "",
+    ATTENDANCE: "",
+    ATTITUDE: "",
+  });
 
   useEffect(() => {
     const fetchGradeData = async () => {
@@ -87,7 +105,7 @@ const ReportPage: React.FC = () => {
 
         const grades = response.data.grades as StudentGrade[];
 
-        const gradeMap = new Map(grades.map(g => [g.subject, g.score]));
+        const gradeMap = new Map(grades.map((g) => [g.subject, g.score]));
 
         const merged = subjects.map((subj) => {
           const score = gradeMap.get(subj) ?? 0;
@@ -125,8 +143,48 @@ const ReportPage: React.FC = () => {
     if (selectedType === "score") {
       fetchGradeData();
     }
-  }, [selectedGrade, selectedSemester, selectedStudent, selectedType, schoolId]);
+  }, [
+    selectedGrade,
+    selectedSemester,
+    selectedStudent,
+    selectedType,
+    schoolId,
+  ]);
 
+  const fetchFeedbackData = useCallback(async () => {
+    if (!selectedStudent) return;
+    const token = sessionStorage.getItem("accessToken");
+    if (!token || !schoolId) return;
+
+    try {
+      const response = await axios.get(
+        `/school/${schoolId}/feedback/students/${selectedStudent.studentId}?schoolYear=${selectedGrade}`
+      );
+
+      if (response.data.status === 200) {
+        const newFeedbacks: Record<FeedbackItem["category"], string> = {
+          GRADE: "",
+          BEHAVIOR: "",
+          ATTENDANCE: "",
+          ATTITUDE: "",
+        };
+
+        (response.data.data as FeedbackItem[]).forEach((item) => {
+          newFeedbacks[item.category] = item.content;
+        });
+
+        setFeedbacks(newFeedbacks);
+      }
+    } catch (err) {
+      console.error("피드백 데이터 조회 실패:", err);
+    }
+  }, [selectedStudent, selectedGrade, schoolId]);
+
+  useEffect(() => {
+    if (selectedType === "feedback") {
+      fetchFeedbackData();
+    }
+  }, [selectedType, selectedStudent, selectedGrade, fetchFeedbackData]);
 
   const getPdfFileName = () => {
     if (!selectedStudent) return "report.pdf";
@@ -212,9 +270,9 @@ const ReportPage: React.FC = () => {
   //excel 생성
   const generateExcel = () => {
     if (!selectedStudent) return;
-  
+
     let data: ScoreExcelRow[] | CounselingExcelRow[] | FeedbackExcelRow[] = [];
-  
+
     if (selectedType === "score") {
       data = semesterTableData.map((row) => ({
         과목: row.subject,
@@ -231,10 +289,10 @@ const ReportPage: React.FC = () => {
       ];
     } else if (selectedType === "feedback") {
       data = [
-        { 항목: "성적", 내용: "Lorem ipsum 성적 피드백" },
-        { 항목: "행동", 내용: "Lorem ipsum 행동 피드백" },
-        { 항목: "출결", 내용: "Lorem ipsum 출결 피드백" },
-        { 항목: "태도", 내용: "Lorem ipsum 태도 피드백" },
+        { 항목: "성적", 내용: feedbacks.GRADE },
+        { 항목: "행동", 내용: feedbacks.BEHAVIOR },
+        { 항목: "출결", 내용: feedbacks.ATTENDANCE },
+        { 항목: "태도", 내용: feedbacks.ATTITUDE },
       ];
     }
 
@@ -459,7 +517,11 @@ const ReportPage: React.FC = () => {
             <CounselingReport student={selectedStudent} />
           )}
           {selectedType === "feedback" && selectedStudent && (
-            <FeedBackReport student={selectedStudent} grade={selectedGrade} />
+            <FeedBackReport
+              student={selectedStudent}
+              grade={selectedGrade}
+              feedbacks={feedbacks}
+            />
           )}
         </ReportContainer>
       )}
