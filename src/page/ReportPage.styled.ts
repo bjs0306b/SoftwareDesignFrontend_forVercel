@@ -177,3 +177,9 @@ export const SaveButton = styled.button`
   background: none;
   cursor: pointer;
 `;
+
+export const SelectedArea = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: end;
+`;

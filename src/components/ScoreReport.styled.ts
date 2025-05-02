@@ -12,7 +12,7 @@ export const MainContainer = styled.div`
 
 export const Header = styled.header`
   width: 54rem;
-  height: 6.75rem;
+  height: 5.1rem;
   margin-top: 2.25rem;
   border-radius: 1.25rem;
   border: 1px solid #000;

@@ -25,6 +25,7 @@ import jsPDF from "jspdf";
 import * as xlsx from "xlsx";
 import { saveAs } from "file-saver";
 import { useAuthStore } from "../stores/authStore";
+import CounselingSearchTable from "../components/CounselingSearchTable";
 
 interface StudentGrade {
   subject: string;
@@ -37,6 +38,21 @@ interface FeedbackItem {
   schoolYear: number;
   category: "GRADE" | "BEHAVIOR" | "ATTENDANCE" | "ATTITUDE";
   content: string;
+}
+
+interface CounselingItem {
+  consultationId: number;
+  studentId: number;
+  teacherId: number;
+  date: string;
+  isPublicToSubject: boolean;
+  content: string;
+  nextPlan: string;
+  title: string;
+  subject: string;
+  author: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface ScoreRow {
@@ -78,6 +94,15 @@ const ReportPage: React.FC = () => {
   >([]);
   const selectedStudent = useStudentStore((state) => state.selectedStudent);
   const schoolId = useAuthStore((state) => state.schoolId);
+
+  //상담내역 보고서 용
+  const [counselingResults, setCounselingResults] = useState<CounselingItem[]>(
+    []
+  );
+  const [counselingQuery, setCounselingQuery] = useState("");
+  const [selectedCounseling, setSelectedCounseling] =
+    useState<CounselingItem | null>(null);
+  const subject = useAuthStore((state) => state.subject);
 
   //피드백 보고서 용
   const [feedbacks, setFeedbacks] = useState<
@@ -151,6 +176,40 @@ const ReportPage: React.FC = () => {
     schoolId,
   ]);
 
+  const fetchCounselingByTitle = async () => {
+    if (!selectedStudent || !counselingQuery.trim()) return;
+
+    try {
+      const token = sessionStorage.getItem("accessToken");
+      const response = await axios.get(
+        `/school/${schoolId}/consultation/students/${selectedStudent.studentId}/search`,
+        {
+          params: { title: counselingQuery },
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.data.status === 200) {
+        const filtered = response.data.data.filter(
+          (item: CounselingItem) =>
+            !item.isPublicToSubject || item.subject === subject
+        );
+        setCounselingResults(filtered);
+        setSelectedCounseling(null);
+      }
+    } catch (err) {
+      console.error("상담 검색 실패:", err);
+    }
+  };
+
+  //상담 검색 초기화
+  useEffect(() => {
+    if (!selectedStudent) return;
+    setSelectedCounseling(null);
+    setCounselingResults([]);
+  }, [selectedStudent]);
+
+  //피드백 불러오기
   const fetchFeedbackData = useCallback(async () => {
     if (!selectedStudent) return;
     const token = sessionStorage.getItem("accessToken");
@@ -279,12 +338,12 @@ const ReportPage: React.FC = () => {
         점수: row.score,
         등급: row.grade,
       }));
-    } else if (selectedType === "counseling") {
+    } else if (selectedType === "counseling" && selectedCounseling) {
       data = [
         {
-          제목: "OOO",
-          담당자: "ooo",
-          내용: "Lorem ipsum 상담 내용...",
+          제목: selectedCounseling.title,
+          담당자: selectedCounseling.author,
+          내용: selectedCounseling.content,
         },
       ];
     } else if (selectedType === "feedback") {
@@ -356,8 +415,13 @@ const ReportPage: React.FC = () => {
           {selectedType === "counseling" && (
             <>
               <SearchBox>
-                <input type="text" placeholder="상담 제목 검색" />
-                <SearchButton>
+                <input
+                  type="text"
+                  placeholder="상담 제목 검색"
+                  value={counselingQuery}
+                  onChange={(e) => setCounselingQuery(e.target.value)}
+                />
+                <SearchButton onClick={fetchCounselingByTitle}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -513,9 +577,25 @@ const ReportPage: React.FC = () => {
               chartData={radarSemesterData}
             />
           )}
-          {selectedType === "counseling" && selectedStudent && (
-            <CounselingReport student={selectedStudent} />
-          )}
+          {selectedType === "counseling" &&
+            !selectedCounseling &&
+            counselingResults.length > 0 && (
+              <CounselingSearchTable
+                data={counselingResults}
+                onSelect={(post) => {
+                  setSelectedCounseling(post);
+                  setCounselingQuery(post.title);
+                }}
+              />
+            )}
+          {selectedType === "counseling" &&
+            selectedStudent &&
+            selectedCounseling && (
+              <CounselingReport
+                student={selectedStudent}
+                data={[selectedCounseling]}
+              />
+            )}
           {selectedType === "feedback" && selectedStudent && (
             <FeedBackReport
               student={selectedStudent}
