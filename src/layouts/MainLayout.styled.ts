@@ -17,12 +17,19 @@ export const Header = styled.header`
   justify-content: space-between;
   align-items: center;
 
-  img {
+  .logo-img {
     margin-left: 2rem;
     width: 17.5rem;
     height: 6.125rem;
   }
 `;
+
+export const LogoContainer = styled.button`
+  border: 0;
+  background-color: transparent;
+  cursor: pointer;
+`;
+
 export const UserArea = styled.div`
   margin-left: auto;
   display: flex;
@@ -127,6 +134,13 @@ export const UserDropdownItem = styled.button`
 
 export const NotificationArea = styled.div`
   margin-left: 1rem;
+`;
+
+export const BellAlert = styled.div`
+  img {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
 `;
 
 export const NoteTriangle = styled.div`
