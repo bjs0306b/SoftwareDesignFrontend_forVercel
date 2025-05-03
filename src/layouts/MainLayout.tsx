@@ -629,6 +629,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               <p>학생 정보</p>
             </TabButton>
             <TabButton
+              data-testid="tab-student-manage"
               $isActive={location.pathname === "/student-manage"}
               onClick={() => navigate("/student-manage")}
             >
@@ -647,6 +648,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               <p>학생부 관리</p>
             </TabButton>
             <TabButton
+              data-testid="tab-grade-manage"
               $isActive={location.pathname === "/grade"}
               onClick={() => {
                 navigate("/grade");
@@ -667,6 +669,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               <p>학생 성적 관리</p>
             </TabButton>
             <TabButton
+              data-testid="tab-counseling"
               $isActive={location.pathname === "/counseling"}
               onClick={() => navigate("/counseling")}
             >
@@ -691,6 +694,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               <p>상담 내역</p>
             </TabButton>
             <TabButton
+              data-testid="tab-feedback"
               $isActive={location.pathname === "/feedback"}
               onClick={() => navigate("/feedback")}
             >
@@ -709,6 +713,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               <p>피드백 내역</p>
             </TabButton>
             <TabButton
+              data-testid="tab-report"
               $isActive={location.pathname === "/report"}
               onClick={() => navigate("/report")}
             >
