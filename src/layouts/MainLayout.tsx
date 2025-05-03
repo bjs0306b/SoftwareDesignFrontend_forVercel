@@ -70,8 +70,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const setSelectedStudent = useStudentStore(
     (state) => state.setSelectedStudent
   );
-  const setClassStudents = useAuthStore(state => state.setClassStudents);
-  const setSubject = useAuthStore(state => state.setSubject);
+  const setClassStudents = useAuthStore((state) => state.setClassStudents);
+  const setSubject = useAuthStore((state) => state.setSubject);
 
   const accessToken = useAuthStore((state) => state.accessToken);
   // 유저 정보 불러오기
@@ -138,7 +138,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         );
         console.log("반 학생:", studentsData);
 
-        studentsData.sort((a: Student, b: Student) => a.number - b.number)
+        studentsData.sort((a: Student, b: Student) => a.number - b.number);
         setStudents(studentsData);
         setClassStudents(studentsData);
       }
@@ -300,12 +300,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   }, [isUserDropdownOpen, isNoteDropdownOpen]);
 
   return (
-    <LayoutWrapper>
-      <Header>
-        <a href="/main">
-          <img src={Logo} alt="logo" />
+    <LayoutWrapper data-testid="layout-wrapper">
+      <Header data-testid="header">
+        <a href="/main" data-testid="logo-link">
+          <img src={Logo} alt="logo" data-testid="logo" />
         </a>
-        <UserArea>
+        <UserArea data-testid="user-area">
           <div>
             <p>
               {userName} {role === "TEACHER" ? "선생님" : "학생"}
@@ -523,15 +523,16 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               <StudentName>{selectedStudent.name} 학생</StudentName>
             </>
           )}
-          <SearchBox>
+          <SearchBox data-testid="search-box">
             <input
+              data-testid="student-search-input"
               type="text"
               placeholder="학생 이름을 검색하세요"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleKeyDown}
             />
-            <SearchButton onClick={handleSearch}>
+            <SearchButton data-testid="search-button" onClick={handleSearch}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -544,7 +545,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               </svg>
             </SearchButton>
           </SearchBox>
-          <StudentList $isStudentSelected={!!selectedStudent}>
+          <StudentList
+            data-testid="student-list"
+            $isStudentSelected={!!selectedStudent}
+          >
             <table>
               <thead>
                 <tr>
@@ -604,8 +608,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         </SideBar>
 
         <MainArea>
-          <TabArea>
+          <TabArea data-testid="tab-area">
             <TabButton
+              data-testid="tab-student-info"
               $isActive={location.pathname === "/student-info"}
               onClick={() => navigate("/student-info")}
             >
@@ -722,7 +727,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               <p>보고서 생성</p>
             </TabButton>
           </TabArea>
-          <PageArea>{children}</PageArea>
+          <PageArea data-testid="page-area">{children}</PageArea>
         </MainArea>
       </MainContainer>
       {isMyPageOpen && <MyPage onClose={() => setIsMyPageOpen(false)} />}

@@ -379,6 +379,7 @@ const SignInPage: React.FC = () => {
                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
                 <input
+                  data-testid="login-school-input"
                   placeholder="학교명을 검색하세요"
                   type="text"
                   value={schoolQuery}
@@ -401,6 +402,7 @@ const SignInPage: React.FC = () => {
               <InputText>아이디</InputText>
               <InputArea>
                 <input
+                  data-testid="login-email-input"
                   placeholder="example@email.com"
                   type="email"
                   value={loginEmail}
@@ -410,6 +412,7 @@ const SignInPage: React.FC = () => {
               <InputText>비밀번호</InputText>
               <InputArea>
                 <input
+                  data-testid="login-password-input"
                   placeholder="비밀번호를 입력하세요"
                   type={showPassword ? "text" : "password"}
                   value={loginPassword}
@@ -420,7 +423,10 @@ const SignInPage: React.FC = () => {
                   {showPassword ? <FiEyeOff /> : <FiEye />}
                 </ToggleButton>
               </InputArea>
-              <SignButton onClick={handleSignIn}>
+              <SignButton
+                data-testid="login-submit-button"
+                onClick={handleSignIn}
+              >
                 <p>로그인</p>
               </SignButton>
             </form>
