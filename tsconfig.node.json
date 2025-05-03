@@ -5,6 +5,7 @@
     "lib": ["ES2023"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "types": ["node", "@playwright/test"],
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -20,5 +21,9 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["vite.config.ts"]
+  "include": [
+    "playwright.config.ts",
+    "tests/**/*.ts",
+    "vite.config.ts"
+  ]
 }

@@ -225,7 +225,7 @@ const SignInPage: React.FC = () => {
   };
 
   const handleKakaoLogin = () => {
-    window.location.href = "http://localhost:3000/api/v1/auth/kakao/sign-in";
+    window.location.href = "http://3.38.130.125:3000/api/v1/auth/kakao/sign-in";
   };
 
   //카카오 추가정보용
