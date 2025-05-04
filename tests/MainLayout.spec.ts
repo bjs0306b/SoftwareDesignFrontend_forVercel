@@ -77,8 +77,7 @@ test.describe("homeroom teacher", () => {
     await searchInput.fill("김");
     await page.getByTestId("search-button").click();
     
-    // 잠깐 대기
-    await page.waitForTimeout(1000); // 1초 대기
+    await page.waitForTimeout(3000); // 3초 대기
     // 각 줄마다 '김'이 포함된 학생이 맞는지 검증
     const rows = page.locator('[data-testid="student-list"] tbody tr');
     const count = await rows.count();

@@ -696,11 +696,10 @@ const StudentManagementPage: React.FC = () => {
   };
 
   const formatDateForApi = (date: Date): string => {
-    const month = date.getMonth() + 1;  // 1부터 시작
-    const day   = date.getDate();       // 1부터 시작
+    const month = date.getMonth() + 1; // 1부터 시작
+    const day = date.getDate(); // 1부터 시작
     return `${month}/${day}`;
   };
-
 
   useEffect(() => {
     // 1) 학생 데이터 로드
@@ -802,7 +801,6 @@ const StudentManagementPage: React.FC = () => {
 
     // 2) 담임 모드일 때 반 출석 조회
     if (isHomeroom) {
-
       // 반 학생 전원을 “빈 값”으로 먼저 세팅
       const blank: ClassAttendanceRecord[] = classStudents.map((stu) => ({
         studentId: stu.studentId,
@@ -886,7 +884,9 @@ const StudentManagementPage: React.FC = () => {
 
   return (
     <StudentManagementContainer>
-      <StudentManagementHeader>학생부 관리</StudentManagementHeader>
+      <StudentManagementHeader data-testid="page-header">
+        학생부 관리
+      </StudentManagementHeader>
       <Line />
       {selectedStudent || !(role == "TEACHER") ? (
         <>
@@ -1087,12 +1087,14 @@ const StudentManagementPage: React.FC = () => {
         </>
       ) : isHomeroom ? (
         <div>
-          <ClassSectionTitle>{formattedDate} - 반 출석 관리</ClassSectionTitle>
+          <ClassSectionTitle data-testid="class-section-title">
+            {formattedDate} - 반 출석 관리
+          </ClassSectionTitle>
 
           {classStudents.length > 0 ? (
             <>
               <ClassAttendanceTableWrapper>
-                <ClassAttendanceTable>
+                <ClassAttendanceTable data-testid="class-attendance-table">
                   <thead>
                     <tr>
                       <ClassAttendanceHeaderCell>
@@ -1127,7 +1129,7 @@ const StudentManagementPage: React.FC = () => {
                         partialAttendance: "",
                       };
                       return (
-                        <tr key={stu.studentId}>
+                        <tr key={stu.studentId} data-testid="class-student-row">
                           <ClassAttendanceCell>
                             {stu.number}
                           </ClassAttendanceCell>
@@ -1192,13 +1194,14 @@ const StudentManagementPage: React.FC = () => {
               </ClassAttendanceTableWrapper>
 
               <ClassAttendanceEditButton
+                data-testid="edit-attendance-button"
                 onClick={toggleClassAttendanceEditMode}
               >
                 {isClassAttendanceEditing ? "저장" : "수정"}
               </ClassAttendanceEditButton>
             </>
           ) : (
-            <GuideMessage>반 학생 정보가 없습니다.</GuideMessage>
+            <GuideMessage data-testid="empty-message">반 학생 정보가 없습니다.</GuideMessage>
           )}
         </div>
       ) : (
