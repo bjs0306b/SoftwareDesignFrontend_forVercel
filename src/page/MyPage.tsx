@@ -17,10 +17,14 @@ import {
   SectionTitle,
   TitleArea,
   ToggleButton,
+  FileButton,
+  PreviewImg,
+  ImageArea,
 } from "./MyPage.styled";
 import { useAuthStore } from "../stores/authStore";
 import axios from "../api/axiosInstance.ts";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+const DEFAULT_IMAGE_URL = "/assets/img/photo.png";
 
 interface MyPageProps {
   onClose: () => void;
@@ -37,10 +41,14 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
   const userName = useAuthStore((state) => state.userName);
   const [name, setName] = useState(userName);
   const handleSaveInfo = () => {
+    alert("개인정보가 변경되었습니다.");
+  };
+
+  const [localIsHomeroom, setLocalIsHomeroom] = useState(isHomeroom);
+  const handleHomeroom = () => {
     setIsHomeroom(localIsHomeroom);
     alert("개인정보가 변경되었습니다.");
   };
-  const [localIsHomeroom, setLocalIsHomeroom] = useState(isHomeroom);
   const [showPassword, setShowPassword] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -92,6 +100,26 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
   const [schoolQuery, setSchoolQuery] = useState("");
   const [selectedSchool, setSelectedSchool] = useState(schoolName);
   const [schoolResults, setSchoolResults] = useState<string[]>([]);
+
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>(DEFAULT_IMAGE_URL);
+
+  // 파일 선택 핸들러
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setSelectedImage(null);
+      setPreviewUrl(DEFAULT_IMAGE_URL);
+    }
+  };
+
   const handleSchoolSearch = (query: string) => {
     setSchoolQuery(query);
     if (query.length > 0) {
@@ -134,6 +162,26 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
         <Section>
           <SectionTitle>개인정보</SectionTitle>
           <Line />
+          {role === "STUDENT" && (
+            <>
+              <label>사진</label>
+              <ImageArea>
+                <input
+                  type="file"
+                  id="fileInput"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={handleImageChange}
+                />
+                {previewUrl && <PreviewImg src={previewUrl} alt="미리보기" />}
+                <FileButton
+                  onClick={() => document.getElementById("fileInput")?.click()}
+                >
+                  파일 선택
+                </FileButton>
+              </ImageArea>
+            </>
+          )}
           <label>성명</label>
           <Input
             type="text"
@@ -147,6 +195,7 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
             value={schoolQuery}
             onChange={(e) => handleSchoolSearch(e.target.value)}
           />
+          <ChangeButton onClick={handleSaveInfo}>개인정보 변경</ChangeButton>
           {schoolResults.length > 0 && (
             <SchoolList>
               {schoolResults.map((school) => (
@@ -161,6 +210,8 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
           )}
           {role === "TEACHER" && (
             <>
+              <SectionTitle>담임교사 권한 설정</SectionTitle>
+              <Line />
               <InfoRow>
                 담임교사 여부
                 <input
@@ -191,9 +242,11 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
                   <option value="6">6반</option>
                 </DropDown>
               </DropdownBox>
+              <ChangeButton onClick={handleHomeroom}>
+                담임권한 설정
+              </ChangeButton>
             </>
           )}
-          <ChangeButton onClick={handleSaveInfo}>개인정보 변경</ChangeButton>
         </Section>
 
         <Section>
