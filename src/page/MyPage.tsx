@@ -6,6 +6,7 @@ import {
   DropdownBox,
   InfoRow,
   Input,
+  InputArea,
   Line,
   ModalContainer,
   Overlay,
@@ -15,8 +16,11 @@ import {
   Section,
   SectionTitle,
   TitleArea,
+  ToggleButton,
 } from "./MyPage.styled";
 import { useAuthStore } from "../stores/authStore";
+import axios from "../api/axiosInstance.ts";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 interface MyPageProps {
   onClose: () => void;
@@ -27,22 +31,27 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
   const isHomeroom = useAuthStore((state) => state.isHomeroom);
   const setIsHomeroom = useAuthStore((state) => state.setIsHomeroom);
   const schoolName = useAuthStore((state) => state.schoolName);
+  const schoolId = useAuthStore((state) => state.schoolId);
   const [selectedGrade, setSelectedGrade] = useState("1");
   const [selectedClass, setSelectedClass] = useState("1");
-  const [name, setName] = useState("OOO");
+  const userName = useAuthStore((state) => state.userName);
+  const [name, setName] = useState(userName);
   const handleSaveInfo = () => {
     setIsHomeroom(localIsHomeroom);
     alert("개인정보가 변경되었습니다.");
   };
   const [localIsHomeroom, setLocalIsHomeroom] = useState(isHomeroom);
+  const [showPassword, setShowPassword] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
-  const handlePasswordChange = () => {
-    if (currentPassword !== "1234") {
-      setPasswordError("기존 비밀번호가 틀렸습니다.");
+  const handlePasswordChange = async () => {
+    setPasswordError("");
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordError("모든 비밀번호를 입력해주세요.");
       return;
     }
 
@@ -51,8 +60,23 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
       return;
     }
 
-    setPasswordError("");
-    alert("비밀번호가 성공적으로 변경되었습니다.");
+    try {
+      const response = await axios.patch(`/school/${schoolId}/users/password`, {
+        currentPassword,
+        newPassword,
+      });
+
+      if (response.data.status === 200) {
+        alert("비밀번호가 성공적으로 변경되었습니다.");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+        setShowPassword(false);
+        console.log("응답 결과:", response.data);
+      }
+    } catch (error) {
+      console.error("비밀번호 변경 실패:", error);
+    }
   };
 
   const allSchools = [
@@ -176,23 +200,41 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
           <SectionTitle>비밀번호 변경</SectionTitle>
           <Line />
           <label>기존 비밀번호</label>
-          <Input
-            type="password"
-            placeholder="영문+숫자"
-            onChange={(e) => setCurrentPassword(e.target.value)}
-          />
+          <InputArea>
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="영문+숫자"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+            />
+            <ToggleButton onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? <FiEyeOff /> : <FiEye />}
+            </ToggleButton>
+          </InputArea>
           <label>변경 비밀번호</label>
-          <Input
-            type="password"
-            placeholder="영문+숫자"
-            onChange={(e) => setNewPassword(e.target.value)}
-          />
+          <InputArea>
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="영문+숫자"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
+            <ToggleButton onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? <FiEyeOff /> : <FiEye />}
+            </ToggleButton>
+          </InputArea>
           <label>변경 비밀번호 확인</label>
-          <Input
-            type="password"
-            placeholder="영문+숫자"
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
+          <InputArea>
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="영문+숫자"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+            <ToggleButton onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? <FiEyeOff /> : <FiEye />}
+            </ToggleButton>
+          </InputArea>
           {passwordError && <p>{passwordError}</p>}
           <ChangeButton onClick={handlePasswordChange}>
             비밀번호 변경

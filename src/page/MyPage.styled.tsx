@@ -86,6 +86,45 @@ export const Line = styled.div`
   margin-bottom: 1rem;
 `;
 
+export const InputArea = styled.div`
+  width: 23rem;
+  height: 2.5rem;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  border-radius: 0.625rem;
+  border: solid 1px #424242;
+  margin: 0.25rem 0 1rem 0;
+
+  input {
+    border: none;
+    width: 23rem;
+    margin: 0 0.5rem 0 1rem;
+    background-color: transparent;
+    font-size: 1rem;
+  }
+
+  input:focus {
+    outline: none;
+  }
+
+  &::placeholder {
+    color: #858585;
+  }
+`;
+
+export const ToggleButton = styled.button.attrs({ type: "button" })`
+  background: none;
+  border: none;
+  margin-right: 1rem;
+  cursor: pointer;
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    stroke: #424242;
+  }
+`;
+
 export const Input = styled.input`
   width: 23rem;
   height: 2.5rem;
