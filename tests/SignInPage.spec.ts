@@ -1,7 +1,6 @@
-// tests/SignInPage.spec.ts
 import { test, expect } from "@playwright/test";
 
-test.describe("SignInPage", () => {
+test.describe("homeroom teacher", () => {
   test.beforeEach(async ({ page, baseURL }) => {
     // baseURL은 playwright.config.ts에서 설정되어 있다면 생략 가능
     await page.goto(baseURL ?? "http://localhost:5173");

@@ -73,6 +73,11 @@ const CounselingWritePage: React.FC = () => {
   }, [post]);
 
   const handleSubmit = async () => {
+    
+    if (!title.trim() || !content.trim() || !nextCounselingDate) {
+      alert("제목, 내용, 다음 상담 기간을 모두 입력해주세요.");
+      return;
+    }
     // 날짜 형식 변환
     const formatDateForAPI = (dateString: string) => {
       const date = new Date(dateString);
