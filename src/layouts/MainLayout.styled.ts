@@ -143,6 +143,17 @@ export const BellAlert = styled.div`
   }
 `;
 
+export const NotificationEmpty = styled.div`
+  height: 13rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: black;
+  font-family: "Inter";
+  font-size: 0.75rem;
+  font-weight: 700;
+`;
+
 export const NoteTriangle = styled.div`
   z-index: 100;
   transform: translate(0.4rem, 0.3rem);
@@ -196,6 +207,7 @@ export const NotificationItem = styled.div`
     flex-direction: column;
     height: 2rem;
   }
+  cursor: pointer;
 `;
 
 export const NotificationTitle = styled.div`

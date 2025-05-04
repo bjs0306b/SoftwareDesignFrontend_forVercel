@@ -34,6 +34,7 @@ import {
   SearchButton,
   LogoContainer,
   BellAlert,
+  NotificationEmpty,
 } from "./MainLayout.styled";
 import MyPage from "../page/MyPage";
 import { useAuthStore } from "../stores/authStore";
@@ -354,10 +355,42 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         `/school/${schoolId}/notifications`
       );
       setNotifications(response.data.notification);
+      console.log(response.data);
     } catch (err) {
       console.error("알림 불러오기 실패:", err);
     }
   }, [schoolId]);
+
+  const handleNotificationClick = async (
+    notificationId: number,
+    type: string
+  ) => {
+    try {
+      // 알림 읽음 처리 API 요청
+      await axiosInstance.get(
+        `/school/${schoolId}/notifications/${notificationId}`
+      );
+
+      // 알림 유형에 따라 라우팅
+      switch (type) {
+        case "GRADE":
+          navigate("/grade");
+          break;
+        case "CONSULTATION":
+          navigate("/counseling");
+          break;
+        case "FEEDBACK":
+          navigate("/feedback");
+          break;
+        default:
+          break;
+      }
+
+      fetchNotifications();
+    } catch (err) {
+      console.error("알림 처리 실패:", err);
+    }
+  };
 
   useEffect(() => {
     if (!hasFetched && schoolId) {
@@ -400,14 +433,21 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     };
   }, [isUserDropdownOpen, isNoteDropdownOpen]);
 
+  const handleLogoClick = async () => {
+    await fetchNotifications();
+    navigate("/main");
+  };
+
   return (
     <LayoutWrapper data-testid="layout-wrapper">
       <Header data-testid="header">
         <LogoContainer
-          onClick={() => navigate("/main")}
+          onClick={() => {
+            handleLogoClick();
+          }}
           data-testid="logo-link"
         >
-          <img src={Logo} alt="logo" data-testid="logo" />
+          <img className="logo-img" src={Logo} alt="logo" data-testid="logo" />
         </LogoContainer>
         <UserArea data-testid="user-area">
           <div>
@@ -490,20 +530,35 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               <NoteTriangle />
               <NoteDropdownMenu>
                 <div>
-                  {notifications.map((note) => {
-                    const item = notificationItem[note.type];
-                    return (
-                      <NotificationItem key={note.notificationId}>
-                        {item.icon}
-                        <div>
-                          <NotificationTitle>{item.title}</NotificationTitle>
-                          <NotificationText>
-                            {item.getText(userName)}
-                          </NotificationText>
-                        </div>
-                      </NotificationItem>
-                    );
-                  })}
+                  {notifications.length === 0 ? (
+                    <NotificationEmpty>
+                      새로운 알림이 없습니다.
+                    </NotificationEmpty>
+                  ) : (
+                    notifications.map((note) => {
+                      const item = notificationItem[note.type];
+                      return (
+                        <NotificationItem
+                          key={note.notificationId}
+                          onClick={() =>
+                            handleNotificationClick(
+                              note.notificationId,
+                              note.type
+                            )
+                          }
+                          style={{ cursor: "pointer" }}
+                        >
+                          {item.icon}
+                          <div>
+                            <NotificationTitle>{item.title}</NotificationTitle>
+                            <NotificationText>
+                              {item.getText(userName)}
+                            </NotificationText>
+                          </div>
+                        </NotificationItem>
+                      );
+                    })
+                  )}
                 </div>
               </NoteDropdownMenu>
             </>
