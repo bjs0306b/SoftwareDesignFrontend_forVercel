@@ -73,7 +73,6 @@ const CounselingWritePage: React.FC = () => {
   }, [post]);
 
   const handleSubmit = async () => {
-    
     if (!title.trim() || !content.trim() || !nextCounselingDate) {
       alert("제목, 내용, 다음 상담 기간을 모두 입력해주세요.");
       return;
@@ -81,9 +80,9 @@ const CounselingWritePage: React.FC = () => {
     // 날짜 형식 변환
     const formatDateForAPI = (dateString: string) => {
       const date = new Date(dateString);
-      return date.toISOString(); 
+      return date.toISOString();
     };
-  
+
     const requestData = {
       title,
       content,
@@ -91,7 +90,7 @@ const CounselingWritePage: React.FC = () => {
       nextPlan: formatDateForAPI(nextCounselingDate), // 사용자가 입력한 '다음 상담 기간'
       isPublicToSubject: isPrivate, // 체크박스 상태
     };
-  
+
     try {
       const token = sessionStorage.getItem("accessToken"); // 토큰 가져오기
       console.log(selectedStudent?.studentId);
@@ -105,7 +104,7 @@ const CounselingWritePage: React.FC = () => {
         }
       );
       console.log("상담 기록 저장 성공:", response.data);
-      handleGoBack(); 
+      handleGoBack();
     } catch (err) {
       console.error("상담 기록 저장 실패:", err);
       // 실패 시 처리, 예: 사용자에게 에러 메시지 표시
@@ -113,7 +112,7 @@ const CounselingWritePage: React.FC = () => {
   };
 
   const handleGoBack = () => {
-    navigate(-1); 
+    navigate(-1);
   };
 
   return (
@@ -160,8 +159,20 @@ const CounselingWritePage: React.FC = () => {
         />
 
         <ButtonGroup>
-          <CancelButton onClick={handleGoBack}>취소</CancelButton>
-          {!viewOnly && <SaveButton onClick={handleSubmit}>저장</SaveButton>}
+          <CancelButton
+            data-testid="counseling-cancel-button"
+            onClick={handleGoBack}
+          >
+            취소
+          </CancelButton>
+          {!viewOnly && (
+            <SaveButton
+              data-testid="counseling-save-button"
+              onClick={handleSubmit}
+            >
+              저장
+            </SaveButton>
+          )}
         </ButtonGroup>
       </Container>
     </CounselingWriteContainer>

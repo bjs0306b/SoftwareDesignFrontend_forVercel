@@ -174,27 +174,60 @@ const CounselingPage: React.FC = () => {
           {!loading && !error && (
             <>
               <BoardTable>
-                <thead>
+                <thead data-testid="counseling-table-head">
                   <TableRow>
-                    <TableHeader width="3rem">번호</TableHeader>
-                    <TableHeader width="40rem">제목</TableHeader>
-                    <TableHeader width="10rem">작성자</TableHeader>
-                    <TableHeader width="5rem">담당과목</TableHeader>
-                    <TableHeader width="13rem">상담일자</TableHeader>
+                    <TableHeader
+                      data-testid="counseling-header-id"
+                      width="3rem"
+                    >
+                      번호
+                    </TableHeader>
+                    <TableHeader
+                      data-testid="counseling-header-title"
+                      width="40rem"
+                    >
+                      제목
+                    </TableHeader>
+                    <TableHeader
+                      data-testid="counseling-header-author"
+                      width="10rem"
+                    >
+                      작성자
+                    </TableHeader>
+                    <TableHeader
+                      data-testid="counseling-header-subject"
+                      width="5rem"
+                    >
+                      담당과목
+                    </TableHeader>
+                    <TableHeader
+                      data-testid="counseling-header-date"
+                      width="13rem"
+                    >
+                      상담일자
+                    </TableHeader>
                   </TableRow>
                 </thead>
-                <tbody>
+                <tbody data-testid="counseling-table-body">
                   {currentPosts.map((post, index) => (
                     <TableRow
                       key={post.consultationId}
+                      data-testid="counseling-table-row"
                       onClick={() => handleRowClick(post.consultationId)}
                     >
-                      <TableCell isBold>{index + 1}</TableCell>{" "}
-                      {/* 번호를 순서대로 표시 */}
-                      <TitleCell>{post.title}</TitleCell>
-                      <TableCell>{post.author}</TableCell>
-                      <TableCell>{post.subject}</TableCell>
-                      <TableCell>
+                      <TableCell isBold data-testid="counseling-cell-id">
+                        {index + 1}
+                      </TableCell>
+                      <TitleCell data-testid="counseling-cell-title">
+                        {post.title}
+                      </TitleCell>
+                      <TableCell data-testid="counseling-cell-author">
+                        {post.author}
+                      </TableCell>
+                      <TableCell data-testid="counseling-cell-subject">
+                        {post.subject}
+                      </TableCell>
+                      <TableCell data-testid="counseling-cell-date">
                         {new Date(post.date).toLocaleDateString()}
                       </TableCell>
                     </TableRow>
@@ -204,6 +237,7 @@ const CounselingPage: React.FC = () => {
               <Footer>
                 <SearchContainer>
                   <SearchSelect
+                    data-testid="counseling-search-select"
                     value={searchType}
                     onChange={(e) => {
                       setSearchType(e.target.value);
@@ -219,6 +253,7 @@ const CounselingPage: React.FC = () => {
                   {searchType === "period" ? (
                     <DateSection>
                       <DateInput
+                        data-testid="counseling-search-date"
                         type="date"
                         value={tempSelectedDate}
                         onChange={(e) => setTempSelectedDate(e.target.value)} // 실시간으로 날짜를 임시 변수에 저장
@@ -226,6 +261,7 @@ const CounselingPage: React.FC = () => {
                     </DateSection>
                   ) : (
                     <SearchInput
+                      data-testid="counseling-search-input"
                       value={tempSearchQuery}
                       onChange={(e) => setTempSearchQuery(e.target.value)} // 실시간 업데이트가 아니라 임시 변수에 저장
                       onKeyDown={(e) => {
@@ -236,7 +272,10 @@ const CounselingPage: React.FC = () => {
                       placeholder="검색할 내용을 입력하세요."
                     />
                   )}
-                  <SearchButton onClick={handleSearch}>
+                  <SearchButton
+                    data-testid="counseling-search-button"
+                    onClick={handleSearch}
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"

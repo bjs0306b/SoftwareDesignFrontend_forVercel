@@ -93,7 +93,7 @@ test.describe("homeroom teacher", () => {
     await firstCell.click();
     await page.keyboard.press("Control+A");
     await page.keyboard.type("1");
-    await firstCell.evaluate((el) => (el as HTMLElement).blur());
+    await firstCell.evaluate((el: any) => el.blur());
 
     // 6) 저장(=토글) 클릭 & 비활성화 확인
     await page.getByTestId("edit-attendance-button").click();
@@ -220,7 +220,7 @@ test.describe("homeroom teacher", () => {
     await firstDateCell.click();
     await page.keyboard.press("Control+A");
     await page.keyboard.type("1");
-    await firstDateCell.evaluate((el) => (el as HTMLElement).blur());
+    await firstDateCell.evaluate((el: any) => el.blur());
 
     // 7) 저장(=토글) 클릭
     await page.getByTestId("semester-attendance-button").click();
