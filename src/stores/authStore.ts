@@ -28,6 +28,7 @@ interface AuthState {
   setSchoolName: (name: string) => void;
   setRole: (role: RoleType) => void;
   setIsHomeroom: (value: boolean) => void;
+  setClassId: (classId: number) => void;
   setAuthTokens: (access: string, refresh: string) => void;
   setSchoolAndClass: (schoolId: number, classId: number) => void;
   setGradeAndClass: (grade: number, gradeClass: number) => void;
@@ -55,6 +56,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   setSchoolName: (schoolName) => set({ schoolName }),
   setRole: (role) => set({ role }),
   setIsHomeroom: (value) => set({ isHomeroom: value }),
+  setClassId: (value) => set({ classId: value }),
   setAuthTokens: (accessToken, refreshToken) => {
     sessionStorage.setItem("accessToken", accessToken);
     sessionStorage.setItem("refreshToken", refreshToken);

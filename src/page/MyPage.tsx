@@ -37,11 +37,13 @@ interface MyPageProps {
 const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
   const role = useAuthStore((state) => state.role);
   const isHomeroom = useAuthStore((state) => state.isHomeroom);
+  const setClassId = useAuthStore((state) => state.setClassId);
   const setIsHomeroom = useAuthStore((state) => state.setIsHomeroom);
   const schoolName = useAuthStore((state) => state.schoolName);
   const schoolId = useAuthStore((state) => state.schoolId);
-  const [selectedGrade, setSelectedGrade] = useState("1");
-  const [selectedClass, setSelectedClass] = useState("1");
+  const { grade, gradeClass, setGradeAndClass } = useAuthStore();
+  const [selectedGrade, setSelectedGrade] = useState(grade.toString());
+  const [selectedClass, setSelectedClass] = useState(gradeClass.toString());
   const userName = useAuthStore((state) => state.userName);
   const [name, setName] = useState(userName);
   const navigate = useNavigate();
@@ -115,10 +117,6 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
   };
 
   const [localIsHomeroom, setLocalIsHomeroom] = useState(isHomeroom);
-  const handleHomeroom = () => {
-    setIsHomeroom(localIsHomeroom);
-    alert("담임 권한이 설정되었습니다.");
-  };
   const [showPassword, setShowPassword] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -225,6 +223,38 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
     } else {
       setSelectedImage(null);
       setPreviewUrl(DEFAULT_IMAGE_URL);
+    }
+  };
+
+  //담임권한설정
+  const handleHomeroom = async () => {
+    try {
+      if (!localIsHomeroom) {
+        alert("담임 권한을 비활성화하려면 관리자에게 문의하세요.");
+        return;
+      }
+
+      const response = await axios.post(
+        `/school/${schoolId}/users/assign-homeroom`,
+        {
+          grade: Number(selectedGrade),
+          gradeClass: Number(selectedClass),
+        }
+      );
+
+      if (response.data.status === 200) {
+        const { classId } = response.data;
+        setIsHomeroom(true);
+        setClassId(classId);
+        setGradeAndClass(Number(selectedGrade), Number(selectedClass));
+
+        alert("담임 권한 설정이 완료되었습니다.");
+      } else {
+        alert(response.data.message || "담임 설정에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("담임 설정 실패:", error);
+      alert("담임 설정 중 오류가 발생했습니다.");
     }
   };
 
