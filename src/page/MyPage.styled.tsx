@@ -153,25 +153,6 @@ export const ToggleButton = styled.button.attrs({ type: "button" })`
   }
 `;
 
-export const Input = styled.input`
-  width: 23rem;
-  height: 2.5rem;
-  border: 1px solid #ccc;
-  border-radius: 0.625rem;
-
-  color: black;
-  font-family: "Noto Sans";
-  font-size: 1rem;
-  font-style: normal;
-  font-weight: 400;
-  padding-left: 1rem;
-  margin: 0.25rem 0 1rem 0;
-
-  &::placeholder {
-    color: #858585;
-  }
-`;
-
 export const SchoolInput = styled.input`
   width: 23rem;
   height: 2.5rem;
@@ -192,14 +173,13 @@ export const SchoolInput = styled.input`
 
 export const SchoolList = styled.ul`
   position: absolute;
-  width: 24rem;
-  top: 35%;
-  left: 3.25%;
+  top: 100%;
+  left: 0;
   right: 0;
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 4px;
-  max-height: 20rem;
+  max-height: 200px;
   overflow-y: auto;
   z-index: 10;
   margin: 0;

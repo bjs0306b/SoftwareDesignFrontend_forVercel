@@ -1,16 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ChangeButton,
   CloseButton,
   DropDown,
   DropdownBox,
   InfoRow,
-  Input,
   InputArea,
   Line,
   ModalContainer,
   Overlay,
-  SchoolInput,
   SchoolItem,
   SchoolList,
   Section,
@@ -24,7 +22,13 @@ import {
 import { useAuthStore } from "../stores/authStore";
 import axios from "../api/axiosInstance.ts";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 const DEFAULT_IMAGE_URL = "/assets/img/photo.png";
+
+interface School {
+  schoolId: number;
+  schoolName: string;
+}
 
 interface MyPageProps {
   onClose: () => void;
@@ -40,14 +44,80 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
   const [selectedClass, setSelectedClass] = useState("1");
   const userName = useAuthStore((state) => state.userName);
   const [name, setName] = useState(userName);
-  const handleSaveInfo = () => {
-    alert("개인정보가 변경되었습니다.");
+  const navigate = useNavigate();
+
+  const handleUpdateUserInfo = async () => {
+    const prevName = useAuthStore.getState().userName;
+    const prevSchoolName = useAuthStore.getState().schoolName;
+
+    // 공백 제거한 현재 값
+    const trimmedName = name.trim();
+    const trimmedSchool = selectedSchool.trim();
+
+    // 변경 여부 판단 (빈 문자열 포함)
+    const isNameChanged = trimmedName && trimmedName !== prevName.trim();
+    const isSchoolChanged =
+      trimmedSchool && trimmedSchool !== prevSchoolName.trim();
+    const isImageChanged = previewUrl !== DEFAULT_IMAGE_URL;
+
+    // 변경된 정보가 전혀 없을 때
+    if (!isNameChanged && !isSchoolChanged && !isImageChanged) {
+      alert("변경된 정보가 없습니다.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("name", trimmedName || prevName);
+    formData.append("schoolName", trimmedSchool || prevSchoolName);
+
+    //학생일 때 프로필 추가
+    if (role === "STUDENT" && isImageChanged && selectedImage) {
+      formData.append("profile", selectedImage);
+    }
+
+    try {
+      const response = await axios.patch(
+        `/school/${schoolId}/users/me`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.data.status !== 200) return;
+
+      if (isSchoolChanged) {
+        alert("학교가 변경되었습니다. 다시 로그인해주세요.");
+        await handleLogout();
+        return;
+      }
+
+      alert("내 정보가 성공적으로 수정되었습니다.");
+      window.location.reload();
+    } catch (err) {
+      console.error("내 정보 수정 실패:", err);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      if (!schoolId) return;
+
+      const response = await axios.post(`/auth/sign-out`, {});
+      console.log("로그아웃 성공:", response.data);
+      navigate("/");
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+      throw error;
+    }
   };
 
   const [localIsHomeroom, setLocalIsHomeroom] = useState(isHomeroom);
   const handleHomeroom = () => {
     setIsHomeroom(localIsHomeroom);
-    alert("개인정보가 변경되었습니다.");
+    alert("담임 권한이 설정되었습니다.");
   };
   const [showPassword, setShowPassword] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -87,19 +157,57 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
     }
   };
 
-  const allSchools = [
-    "서울고등학교",
-    "부산고등학교",
-    "대구중학교",
-    "인천중학교",
-    "광주고등학교",
-    "대전중학교",
-    "울산중학교",
-  ];
-
   const [schoolQuery, setSchoolQuery] = useState("");
-  const [selectedSchool, setSelectedSchool] = useState(schoolName);
-  const [schoolResults, setSchoolResults] = useState<string[]>([]);
+  const [selectedSchool, setSelectedSchool] = useState("");
+  const [schoolResults, setSchoolResults] = useState<School[]>([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const searchTimeoutRef = useRef<number | null>(null);
+
+  const handleSchoolSearch = (query: string) => {
+    setSchoolQuery(query);
+    setSelectedSchool("");
+
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    if (query.trim().length === 0) {
+      setSchoolResults([]);
+      setIsDropdownOpen(false);
+      return;
+    }
+
+    setIsDropdownOpen(true);
+
+    searchTimeoutRef.current = window.setTimeout(async () => {
+      try {
+        const response = await axios.get("/school", {
+          params: { schoolName: query },
+        });
+        const schools: School[] = response.data.data;
+        setSchoolResults(schools);
+      } catch (error) {
+        console.error("학교 검색 실패", error);
+        setSchoolResults([]);
+      }
+    }, 300);
+  };
+
+  const handleSchoolSelect = (school: School) => {
+    setSelectedSchool(school.schoolName);
+    setSchoolQuery(school.schoolName);
+    setSchoolResults([]);
+    setIsDropdownOpen(false);
+  };
+
+  //컴포넌트 언마운트 시 클리어
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>(DEFAULT_IMAGE_URL);
@@ -118,24 +226,6 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
       setSelectedImage(null);
       setPreviewUrl(DEFAULT_IMAGE_URL);
     }
-  };
-
-  const handleSchoolSearch = (query: string) => {
-    setSchoolQuery(query);
-    if (query.length > 0) {
-      const filteredSchools = allSchools.filter((school) =>
-        school.toLowerCase().includes(query.toLowerCase())
-      );
-      setSchoolResults(filteredSchools);
-    } else {
-      setSchoolResults([]);
-    }
-  };
-
-  const handleSchoolSelect = (school: string) => {
-    setSelectedSchool(school);
-    setSchoolQuery(school);
-    setSchoolResults([]);
   };
 
   return (
@@ -183,31 +273,58 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
             </>
           )}
           <label>성명</label>
-          <Input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+          <InputArea>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </InputArea>
           <label>학교명</label>
-          <SchoolInput
-            placeholder={selectedSchool}
-            type="text"
-            value={schoolQuery}
-            onChange={(e) => handleSchoolSearch(e.target.value)}
-          />
-          <ChangeButton onClick={handleSaveInfo}>개인정보 변경</ChangeButton>
-          {schoolResults.length > 0 && (
-            <SchoolList>
-              {schoolResults.map((school) => (
-                <SchoolItem
-                  key={school}
-                  onClick={() => handleSchoolSelect(school)}
-                >
-                  {school}
-                </SchoolItem>
-              ))}
-            </SchoolList>
-          )}
+          <InputArea style={{ position: "relative" }}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#666"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{
+                position: "absolute",
+                left: "20",
+                top: "50%",
+                transform: "translateY(-50%)",
+              }}
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              placeholder={schoolName}
+              type="text"
+              value={schoolQuery}
+              onChange={(e) => handleSchoolSearch(e.target.value)}
+              style={{ paddingLeft: "2rem" }}
+            />
+            {isDropdownOpen && schoolResults.length > 0 && (
+              <SchoolList>
+                {schoolResults.map((school) => (
+                  <SchoolItem
+                    key={school.schoolId}
+                    onClick={() => handleSchoolSelect(school)}
+                  >
+                    {school.schoolName}
+                  </SchoolItem>
+                ))}
+              </SchoolList>
+            )}
+          </InputArea>
+          <ChangeButton onClick={handleUpdateUserInfo}>
+            개인정보 변경
+          </ChangeButton>
           {role === "TEACHER" && (
             <>
               <SectionTitle>담임교사 권한 설정</SectionTitle>
