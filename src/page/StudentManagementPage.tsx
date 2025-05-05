@@ -898,29 +898,36 @@ const StudentManagementPage: React.FC = () => {
                 <InfoContent>
                   <InfoLabel>이름</InfoLabel>
                   <InfoInput
+                    data-testid="basicinfo-name-input"
                     type="text"
                     onChange={handleBasicInfoChange("name")}
                     value={basicInfo.name}
                   />
                   <InfoLabel>학년</InfoLabel>
                   <InfoInput
+                    data-testid="basicinfo-grade-input"
                     type="text"
                     onChange={handleBasicInfoChange("grade")}
                     value={basicInfo.grade}
                   />
                   <InfoLabel>반</InfoLabel>
                   <InfoInput
+                    data-testid="basicinfo-class-input"
                     type="text"
                     onChange={handleBasicInfoChange("class")}
                     value={basicInfo.class}
                   />
                   <InfoLabel>번호</InfoLabel>
                   <InfoInput
+                    data-testid="basicinfo-number-input"
                     type="text"
                     onChange={handleBasicInfoChange("number")}
                     value={basicInfo.number}
                   />
-                  <UpdateButton onClick={handleUpdateBasicInfo}>
+                  <UpdateButton
+                    data-testid="basicinfo-apply-button"
+                    onClick={handleUpdateBasicInfo}
+                  >
                     적용
                   </UpdateButton>
                 </InfoContent>
@@ -929,13 +936,16 @@ const StudentManagementPage: React.FC = () => {
           )}
 
           {/* 해당 학기 출석 섹션 */}
-          <SemesterAttendanceSection role={role}>
+          <SemesterAttendanceSection
+            data-testid="semester-attendance-section"
+            role={role}
+          >
             <SectionTitle>
               해당 학기 출석
               <SectionNote>[1: 무단 2:질병 3:기타(사유)]</SectionNote>
             </SectionTitle>
             <AttendanceTableWrapper>
-              <AttendanceTable>
+              <AttendanceTable data-testid="semester-attendance-table">
                 <thead>
                   <tr>
                     <AttendanceHeaderCell></AttendanceHeaderCell>
@@ -949,9 +959,12 @@ const StudentManagementPage: React.FC = () => {
                 </thead>
                 <tbody>
                   {attendanceCategories.map((category) => (
-                    <tr key={category}>
+                    <tr key={category} data-testid="semester-attendance-row">
                       <AttendanceHeaderCell>{category}</AttendanceHeaderCell>
-                      <AttendanceCell className="total">
+                      <AttendanceCell
+                        data-testid="semester-attendance-cell"
+                        className="total"
+                      >
                         {
                           totals[
                             category === "결석"
@@ -979,6 +992,7 @@ const StudentManagementPage: React.FC = () => {
                         return (
                           <AttendanceCell
                             key={`${category}-${date}`}
+                            data-testid="semester-attendance-cell"
                             contentEditable={isAttendanceEditing}
                             suppressContentEditableWarning={true}
                             onBlur={(e) =>
@@ -999,7 +1013,10 @@ const StudentManagementPage: React.FC = () => {
               </AttendanceTable>
             </AttendanceTableWrapper>
             {role === "TEACHER" && (
-              <AttendanceEditButton onClick={toggleAttendanceEditMode}>
+              <AttendanceEditButton
+                data-testid="semester-attendance-button"
+                onClick={toggleAttendanceEditMode}
+              >
                 {isAttendanceEditing ? "저장" : "수정"}
               </AttendanceEditButton>
             )}
@@ -1008,7 +1025,7 @@ const StudentManagementPage: React.FC = () => {
           {/* 출결 정보 테이블 */}
           <StudentAttendanceSection>
             <SectionTitle>학생 출결 정보</SectionTitle>
-            <AttendanceSummaryTable>
+            <AttendanceSummaryTable data-testid="attendance-summary-table">
               <thead>
                 <tr>
                   <SummaryHeaderCell rowSpan={2}>학년</SummaryHeaderCell>
@@ -1038,28 +1055,56 @@ const StudentManagementPage: React.FC = () => {
               </thead>
               <tbody>
                 {attendanceSummaryData.map((row, rowIndex) => (
-                  <tr key={rowIndex}>
-                    <SummaryCell>{row.grade}</SummaryCell>
-                    <SummaryCell>{row.totalDays}</SummaryCell>
+                  <tr key={rowIndex} data-testid="attendance-summary-row">
+                    <SummaryCell data-testid="attendance-summary-grade-cell">
+                      {row.grade}
+                    </SummaryCell>
+                    <SummaryCell data-testid="attendance-summary-total-cell">
+                      {row.totalDays}
+                    </SummaryCell>
                     {/* 결석 */}
-                    <SummaryCell>{row.absentUnauthorized}</SummaryCell>{" "}
+                    <SummaryCell data-testid="attendance-summary-cell">
+                      {row.absentUnauthorized}
+                    </SummaryCell>{" "}
                     {/* 무단 */}
-                    <SummaryCell>{row.absentIllness}</SummaryCell> {/* 질병 */}
-                    <SummaryCell>{row.absentOther}</SummaryCell> {/* 기타 */}
+                    <SummaryCell data-testid="attendance-summary-cell">
+                      {row.absentIllness}
+                    </SummaryCell>{" "}
+                    {/* 질병 */}
+                    <SummaryCell data-testid="attendance-summary-cell">
+                      {row.absentOther}
+                    </SummaryCell>{" "}
+                    {/* 기타 */}
                     {/* 지각 */}
-                    <SummaryCell>{row.lateUnauthorized}</SummaryCell>
-                    <SummaryCell>{row.lateIllness}</SummaryCell>
-                    <SummaryCell>{row.lateOther}</SummaryCell>
+                    <SummaryCell data-testid="attendance-summary-cell">
+                      {row.lateUnauthorized}
+                    </SummaryCell>
+                    <SummaryCell data-testid="attendance-summary-cell">
+                      {row.lateIllness}
+                    </SummaryCell>
+                    <SummaryCell data-testid="attendance-summary-cell">
+                      {row.lateOther}
+                    </SummaryCell>
                     {/* 조퇴 */}
-                    <SummaryCell>{row.earlyUnauthorized}</SummaryCell>
-                    <SummaryCell>{row.earlyIllness}</SummaryCell>
-                    <SummaryCell>{row.earlyOther}</SummaryCell>
+                    <SummaryCell data-testid="attendance-summary-cell">
+                      {row.earlyUnauthorized}
+                    </SummaryCell>
+                    <SummaryCell data-testid="attendance-summary-cell">
+                      {row.earlyIllness}
+                    </SummaryCell>
+                    <SummaryCell data-testid="attendance-summary-cell">
+                      {row.earlyOther}
+                    </SummaryCell>
                     {/* 결과 */}
-                    <SummaryCell>
+                    <SummaryCell data-testid="attendance-summary-cell">
                       {row.partialAttendanceUnauthorized}
                     </SummaryCell>
-                    <SummaryCell>{row.partialAttendanceIllness}</SummaryCell>
-                    <SummaryCell>{row.partialAttendanceOther}</SummaryCell>
+                    <SummaryCell data-testid="attendance-summary-cell">
+                      {row.partialAttendanceIllness}
+                    </SummaryCell>
+                    <SummaryCell data-testid="attendance-summary-cell">
+                      {row.partialAttendanceOther}
+                    </SummaryCell>
                   </tr>
                 ))}
               </tbody>
@@ -1067,9 +1112,10 @@ const StudentManagementPage: React.FC = () => {
           </StudentAttendanceSection>
 
           {/* 특기 사항 섹션 */}
-          <SpecialNotesSection role={role}>
+          <SpecialNotesSection data-testid="specialnotes-section" role={role}>
             <SectionTitle>특기 사항</SectionTitle>
             <NotesForm
+              data-testid="specialnotes-textarea"
               value={specialNotes}
               onChange={handleSpecialNotesChange}
               disabled={!isSpecialNotesEditing}
@@ -1079,7 +1125,10 @@ const StudentManagementPage: React.FC = () => {
               role={role}
             />
             {role === "TEACHER" && (
-              <EditButton onClick={toggleSpecialNotesEditMode}>
+              <EditButton
+                data-testid="specialnotes-button"
+                onClick={toggleSpecialNotesEditMode}
+              >
                 {isSpecialNotesEditing ? "저장" : "수정"}
               </EditButton>
             )}
@@ -1130,11 +1179,14 @@ const StudentManagementPage: React.FC = () => {
                       };
                       return (
                         <tr key={stu.studentId} data-testid="class-student-row">
-                          <ClassAttendanceCell>
+                          <ClassAttendanceCell data-testid="class-attendance-cell-number">
                             {stu.number}
                           </ClassAttendanceCell>
-                          <ClassAttendanceCell>{stu.name}</ClassAttendanceCell>
+                          <ClassAttendanceCell data-testid="class-attendance-cell-name">
+                            {stu.name}
+                          </ClassAttendanceCell>
                           <ClassAttendanceCell
+                            data-testid="class-attendance-cell"
                             contentEditable={isClassAttendanceEditing}
                             suppressContentEditableWarning
                             onBlur={(e) =>
@@ -1148,6 +1200,7 @@ const StudentManagementPage: React.FC = () => {
                             {rec.absent || ""}
                           </ClassAttendanceCell>
                           <ClassAttendanceCell
+                            data-testid="class-attendance-cell"
                             contentEditable={isClassAttendanceEditing}
                             suppressContentEditableWarning
                             onBlur={(e) =>
@@ -1161,6 +1214,7 @@ const StudentManagementPage: React.FC = () => {
                             {rec.late || ""}
                           </ClassAttendanceCell>
                           <ClassAttendanceCell
+                            data-testid="class-attendance-cell"
                             contentEditable={isClassAttendanceEditing}
                             suppressContentEditableWarning
                             onBlur={(e) =>
@@ -1174,6 +1228,7 @@ const StudentManagementPage: React.FC = () => {
                             {rec.early || ""}
                           </ClassAttendanceCell>
                           <ClassAttendanceCell
+                            data-testid="class-attendance-cell"
                             contentEditable={isClassAttendanceEditing}
                             suppressContentEditableWarning
                             onBlur={(e) =>
@@ -1201,7 +1256,9 @@ const StudentManagementPage: React.FC = () => {
               </ClassAttendanceEditButton>
             </>
           ) : (
-            <GuideMessage data-testid="empty-message">반 학생 정보가 없습니다.</GuideMessage>
+            <GuideMessage data-testid="empty-message">
+              반 학생 정보가 없습니다.
+            </GuideMessage>
           )}
         </div>
       ) : (

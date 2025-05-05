@@ -25,6 +25,12 @@ test.describe("homeroom teacher", () => {
     // 로그인 버튼 클릭
     await page.getByRole("button", { name: "로그인" }).click();
 
+    // student-list 뜰 때까지 대기
+    await page.waitForSelector(
+      '[data-testid="student-list"] tbody tr:has-text("김민준")',
+      { state: "visible", timeout: 5000 }
+    );
+    
     // 학생 성적 조회 페이지로 이동
     await page.getByTestId("tab-student-info").click();
     await expect(page).toHaveURL("/student-info");
