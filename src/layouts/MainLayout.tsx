@@ -435,6 +435,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   const handleLogoClick = async () => {
     await fetchNotifications();
+    setSelectedStudent(null);
     navigate("/main");
   };
 
