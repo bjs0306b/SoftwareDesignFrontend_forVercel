@@ -42,8 +42,10 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
   const schoolName = useAuthStore((state) => state.schoolName);
   const schoolId = useAuthStore((state) => state.schoolId);
   const { grade, gradeClass, setGradeAndClass } = useAuthStore();
-  const [selectedGrade, setSelectedGrade] = useState(grade.toString());
-  const [selectedClass, setSelectedClass] = useState(gradeClass.toString());
+  const [selectedGrade, setSelectedGrade] = useState(grade?.toString() ?? "1");
+  const [selectedClass, setSelectedClass] = useState(
+    gradeClass?.toString() ?? "1"
+  );
   const userName = useAuthStore((state) => state.userName);
   const [name, setName] = useState(userName);
   const navigate = useNavigate();
