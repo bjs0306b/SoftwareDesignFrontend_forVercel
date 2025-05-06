@@ -41,7 +41,7 @@ test.describe("homeroom teacher", () => {
 
     // 날짜 타이틀
     const today = new Date();
-    const title = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일 - 반 출석 관리`;
+    const title = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일 - 반 출석 관리[1: 무단 2:질병 3:기타(사유)]`;
     await expect(page.getByTestId("class-section-title")).toHaveText(title);
   });
 

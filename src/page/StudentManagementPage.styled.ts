@@ -24,6 +24,7 @@ export const Line = styled.div`
 `;
 
 export const SectionTitle = styled.div`
+  
   color: #000;
   font-family: "Noto Sans";
   font-size: 1.25rem;
@@ -370,7 +371,7 @@ export const ClassSectionTitle = styled.div`
   margin-left: 2.5rem;
   margin-top: 1rem;
   height: 2rem;
-  width: 30rem;
+  width: 40rem;
   color: #000;
   font-family: "Noto Sans";
   font-size: 1.5rem;

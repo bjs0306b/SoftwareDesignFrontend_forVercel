@@ -132,7 +132,7 @@ export const ContentForm = styled.textarea<FeedbackPageProps>`
   `}
 `;
 export const ButtonContainer = styled.div`
-  margin-left: auto;
+  margin-left: 77rem;
   margin-right: auto;
   width: 84rem;
   display: flex;
@@ -144,34 +144,8 @@ export const ButtonContainer = styled.div`
   }
 `;
 
-export const SendButton = styled.button`
-  height: 2.5rem;
-  background-color: #146c94;
-  border-radius: 0.625rem;
-  color: white;
-  padding: 0rem 1.5rem;
-  border: none;
-  color: #fff;
-  text-align: center;
-  font-family: Inter;
-  font-size: 1.25rem;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  cursor: pointer;
-  transition: opacity 0.3s ease;
-
-  &:hover {
-    opacity: 0.9;
-  }
-
-  &:disabled {
-    background-color: #9db2bf;
-    cursor: not-allowed;
-  }
-`;
-
 export const EditButton = styled.button`
+  
   height: 2.5rem;
   width: 8rem;
   background-color: #146c94;

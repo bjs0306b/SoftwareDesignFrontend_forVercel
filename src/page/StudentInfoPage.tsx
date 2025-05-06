@@ -29,15 +29,15 @@ const StudentInfoPage: React.FC = () => {
           <Table>
             <TableRow>
               <HeaderCell>전화번호</HeaderCell>
-              <DataCell>010-xxxx-xxxx</DataCell>
+              <DataCell>010-1234-5678</DataCell>
             </TableRow>
             <TableRow>
               <HeaderCell>집주소</HeaderCell>
-              <DataCell>인천광역시 연수구 xxx로 312-1</DataCell>
+              <DataCell>인천광역시 연수구 신송로 312-1</DataCell>
             </TableRow>
             <TableRow>
               <HeaderCell>부모님 연락처</HeaderCell>
-              <DataCell>010-xxxx-xxxx</DataCell>
+              <DataCell>010-1234-5678</DataCell>
             </TableRow>
           </Table>
         </StdInfoContent>

@@ -12,7 +12,6 @@ import {
   ContentTitle,
   ContentForm,
   ButtonContainer,
-  SendButton,
   EditButton,
   GradeSelect,
   GuideMessage,
@@ -181,30 +180,6 @@ const FeedbackPage: React.FC = () => {
     }
   };
 
-  const handleSendToStudent = async () => {
-    if (!selectedStudent) return;
-
-    try {
-      // 학생에게 피드백 전송 API 호출 로직 (추후 구현)
-      console.log("학생에게 피드백 전송:", feedbacks);
-      // 예시: await axios.post(`/api/v1/school/${schoolId}/feedback/students/${selectedStudent.studentId}/send`, { feedbacks, target: 'student' });
-    } catch (err) {
-      console.error("학생에게 피드백 전송 중 오류 발생:", err);
-    }
-  };
-
-  const handleSendToParent = async () => {
-    if (!selectedStudent) return;
-
-    try {
-      // 학부모에게 피드백 전송 API 호출 로직 (추후 구현)
-      console.log("학부모에게 피드백 전송:", feedbacks);
-      // 예시: await axios.post(`/api/v1/school/${schoolId}/feedback/students/${selectedStudent.studentId}/send`, { feedbacks, target: 'parent' });
-    } catch (err) {
-      console.error("학부모에게 피드백 전송 중 오류 발생:", err);
-    }
-  };
-
   return (
     <FeedbackContainer>
       <FeedbackHeader>피드백 내역</FeedbackHeader>
@@ -286,20 +261,6 @@ const FeedbackPage: React.FC = () => {
 
           {role === "TEACHER" && !error && (
             <ButtonContainer>
-              <div>
-                <SendButton
-                  onClick={handleSendToStudent}
-                  disabled={isEditing || isLoading}
-                >
-                  학생 전송
-                </SendButton>
-                <SendButton
-                  onClick={handleSendToParent}
-                  disabled={isEditing || isLoading}
-                >
-                  학부모 전송
-                </SendButton>
-              </div>
               <EditButton onClick={toggleEditMode} disabled={isLoading}>
                 {isEditing ? "저장" : "수정"}
               </EditButton>

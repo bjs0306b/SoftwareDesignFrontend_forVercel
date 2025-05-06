@@ -1138,7 +1138,9 @@ const StudentManagementPage: React.FC = () => {
         <div>
           <ClassSectionTitle data-testid="class-section-title">
             {formattedDate} - 반 출석 관리
+            <SectionNote>[1: 무단 2:질병 3:기타(사유)]</SectionNote>
           </ClassSectionTitle>
+          
 
           {classStudents.length > 0 ? (
             <>

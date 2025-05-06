@@ -381,8 +381,9 @@ const ReportPage: React.FC = () => {
       <h1>보고서 생성</h1>
       <Line />
       <ControlContainer>
-        <DropdownBox>
+        <DropdownBox data-testid="select-area">
           <DropDown
+            data-testid="select-type"
             id="type"
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
@@ -394,6 +395,7 @@ const ReportPage: React.FC = () => {
           {selectedType === "score" && (
             <>
               <DropDown
+                data-testid="select-grade"
                 id="grade"
                 value={selectedGrade}
                 onChange={(e) => setSelectedGrade(e.target.value)}
@@ -403,6 +405,7 @@ const ReportPage: React.FC = () => {
                 <option value="3">3학년</option>
               </DropDown>
               <DropDown
+                data-testid="select-semester"
                 id="semester"
                 value={selectedSemester}
                 onChange={(e) => setSelectedSemester(e.target.value)}
@@ -414,7 +417,7 @@ const ReportPage: React.FC = () => {
           )}
           {selectedType === "counseling" && (
             <>
-              <SearchBox>
+              <SearchBox data-testid="counseling-search-box">
                 <input
                   type="text"
                   placeholder="상담 제목 검색"
@@ -439,6 +442,7 @@ const ReportPage: React.FC = () => {
 
           {selectedType === "feedback" && (
             <DropDown
+              data-testid="select-grade"
               id="grade"
               value={selectedGrade}
               onChange={(e) => setSelectedGrade(e.target.value)}
@@ -451,6 +455,7 @@ const ReportPage: React.FC = () => {
         </DropdownBox>
         <ButtonArea>
           <ToggleWrapper
+            data-testid="export-toggle"
             onClick={() => {
               setIsExcel(!isExcel);
             }}
@@ -545,7 +550,7 @@ const ReportPage: React.FC = () => {
               PDF
             </OptionButton>
           </ToggleWrapper>
-          <SaveButton onClick={handleSave}>
+          <SaveButton data-testid="save-button" onClick={handleSave}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="40"
@@ -567,9 +572,10 @@ const ReportPage: React.FC = () => {
           좌측의 검색창에서 보고서를 생성할 학생을 선택하세요.
         </GuideContainer>
       ) : (
-        <ReportContainer ref={reportRef}>
+        <ReportContainer data-testid="report-container" ref={reportRef}>
           {selectedType === "score" && selectedStudent && (
             <ScoreReport
+              data-testid="score-report"
               student={selectedStudent}
               grade={selectedGrade}
               semester={selectedSemester}
@@ -581,6 +587,7 @@ const ReportPage: React.FC = () => {
             !selectedCounseling &&
             counselingResults.length > 0 && (
               <CounselingSearchTable
+                data-testid="counseling-search-table"
                 data={counselingResults}
                 onSelect={(post) => {
                   setSelectedCounseling(post);
@@ -592,12 +599,14 @@ const ReportPage: React.FC = () => {
             selectedStudent &&
             selectedCounseling && (
               <CounselingReport
+                data-testid="counseling-detail"
                 student={selectedStudent}
                 data={[selectedCounseling]}
               />
             )}
           {selectedType === "feedback" && selectedStudent && (
             <FeedBackReport
+              data-testid="feedback-report"
               student={selectedStudent}
               grade={selectedGrade}
               feedbacks={feedbacks}

@@ -54,13 +54,13 @@ test.describe("homeroom teacher", () => {
     await expect(page.getByText("집주소")).toBeVisible();
     await expect(page.getByText("부모님 연락처")).toBeVisible();
 
-    const phones = page.getByText("010-xxxx-xxxx");
+    const phones = page.getByText("010-1234-5678");
     // 두 개가 맞는지 먼저 확인
     await expect(phones).toHaveCount(2);
     // 각각 visible 여부 검사
     await expect(phones.nth(0)).toBeVisible();
     await expect(phones.nth(1)).toBeVisible();
 
-    await expect(page.getByText("인천광역시 연수구 xxx로 312-1")).toBeVisible();
+    await expect(page.getByText("인천광역시 연수구 신송로 312-1")).toBeVisible();
   });
 });

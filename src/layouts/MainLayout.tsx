@@ -235,7 +235,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             img: "/assets/img/photo.png", // 기본 이미지 경로 설정
           })
         );
-        console.log("반 학생:", studentsData);
+        // console.log("반 학생:", studentsData);
 
         studentsData.sort((a: Student, b: Student) => a.number - b.number);
         setStudents(studentsData);
