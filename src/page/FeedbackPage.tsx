@@ -230,6 +230,7 @@ const FeedbackPage: React.FC = () => {
                 <ContentTitle>성적</ContentTitle>
                 <ContentForm
                   value={feedbacks.GRADE}
+                  data-testid="feedback-form-grade"
                   onChange={handleChange("GRADE")}
                   disabled={!isEditing}
                   placeholder={
@@ -243,6 +244,7 @@ const FeedbackPage: React.FC = () => {
                 <ContentTitle>행동</ContentTitle>
                 <ContentForm
                   value={feedbacks.BEHAVIOR}
+                  data-testid="feedback-form-behavior"
                   onChange={handleChange("BEHAVIOR")}
                   disabled={!isEditing}
                   placeholder={
@@ -256,6 +258,7 @@ const FeedbackPage: React.FC = () => {
                 <ContentTitle>출결</ContentTitle>
                 <ContentForm
                   value={feedbacks.ATTENDANCE}
+                  data-testid="feedback-form-attendance"
                   onChange={handleChange("ATTENDANCE")}
                   disabled={!isEditing}
                   placeholder={
@@ -269,6 +272,7 @@ const FeedbackPage: React.FC = () => {
                 <ContentTitle>태도</ContentTitle>
                 <ContentForm
                   value={feedbacks.ATTITUDE}
+                  data-testid="feedback-form-attitude"
                   onChange={handleChange("ATTITUDE")}
                   disabled={!isEditing}
                   placeholder={
