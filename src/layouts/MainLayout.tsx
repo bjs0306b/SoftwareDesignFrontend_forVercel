@@ -149,6 +149,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const setClassStudents = useAuthStore((state) => state.setClassStudents);
   const setSubject = useAuthStore((state) => state.setSubject);
 
+  const grade = useAuthStore((state) => state.grade);
+  const gradeClass = useAuthStore((state) => state.gradeClass);
+  const setStudentInfo = useAuthStore((state) => state.setStudentInfo);
+
   const accessToken = useAuthStore((state) => state.accessToken);
   // 유저 정보 불러오기
   useEffect(() => {
@@ -160,13 +164,30 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           `/school/${schoolId}/users/me`
         );
         console.log("유저 정보 불러오기 성공:", response.data);
-        const { name, role, teacher, school } = response.data.data;
+        const { name, role, teacher, student, school } = response.data.data;
         setUserName(name);
         setRole(role);
         setIsHomeroom(teacher?.isHomeroom ?? false);
         setSchoolName(school?.schoolName || "");
         setGradeAndClass(teacher?.class.grade, teacher?.class.gradeClass);
         setSubject(teacher?.subject || "");
+
+        if (role === "STUDENT" && student) {
+          setStudentInfo({
+            studentId: student.studentId,
+            grade: student.grade,
+            gradeClass: student.gradeClass,
+            number: student.number,
+          });
+          setSelectedStudent({
+            studentId: student.studentId,
+            name: name,
+            grade: student.grade,
+            gradeClass: student.gradeClass,
+            number: student.number,
+            img: "",
+          });
+        }
       } catch (err) {
         console.error("유저 정보 불러오기 실패:", err);
       }
@@ -182,6 +203,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     setSchoolName,
     setGradeAndClass,
     setSubject,
+    setStudentInfo,
+    setSelectedStudent,
   ]);
 
   // 반 학생 목록 가져오기
@@ -571,7 +594,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           {role === "STUDENT" ? (
             <>
               <StudentImg src="/assets/img/photo.png" alt="image" />
-              <StudentClass>학년 반</StudentClass>
+              <StudentClass>
+                {grade}학년 {gradeClass}반
+              </StudentClass>
               <StudentName>{userName} 학생</StudentName>
             </>
           ) : (

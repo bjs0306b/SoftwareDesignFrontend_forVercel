@@ -148,7 +148,6 @@ const GradePage: React.FC = () => {
           };
         });
 
-
         setStudentGrades(merged);
       } else {
         const semesterOrder = [
@@ -389,7 +388,7 @@ const GradePage: React.FC = () => {
             {isPeriod ? (
               <>
                 <DropDown
-                data-testid="grade-select"
+                  data-testid="grade-select"
                   value={selectedGrade}
                   onChange={(e) => setSelectedGrade(e.target.value)}
                   disabled={isEditing}
@@ -399,7 +398,7 @@ const GradePage: React.FC = () => {
                   <option value="3">3학년</option>
                 </DropDown>
                 <DropDown
-                data-testid="semester-select"
+                  data-testid="semester-select"
                   value={selectedSemester}
                   onChange={(e) => setSelectedSemester(e.target.value)}
                   disabled={isEditing}
@@ -462,28 +461,33 @@ const GradePage: React.FC = () => {
               </tbody>
             </table>
           </GradeTable>
-          <ButtonArea>
-            {isEditing ? (
-              <>
-                <CancleButton
-                  data-testid="grade-cancel-button"
-                  onClick={handleCancel}
+          {role !== "STUDENT" && (
+            <ButtonArea>
+              {isEditing ? (
+                <>
+                  <CancleButton
+                    data-testid="grade-cancel-button"
+                    onClick={handleCancel}
+                  >
+                    수정 취소
+                  </CancleButton>
+                  <SaveButton
+                    data-testid="grade-save-button"
+                    onClick={handleSave}
+                  >
+                    수정 완료
+                  </SaveButton>
+                </>
+              ) : (
+                <EditButton
+                  data-testid="grade-edit-button"
+                  onClick={handleEdit}
                 >
-                  수정 취소
-                </CancleButton>
-                <SaveButton
-                  data-testid="grade-save-button"
-                  onClick={handleSave}
-                >
-                  수정 완료
-                </SaveButton>
-              </>
-            ) : (
-              <EditButton data-testid="grade-edit-button" onClick={handleEdit}>
-                성적관리
-              </EditButton>
-            )}
-          </ButtonArea>
+                  성적관리
+                </EditButton>
+              )}
+            </ButtonArea>
+          )}
         </TableArea>
         <ChartArea>
           <ChartTitle data-testid="grade-chart-title">
@@ -501,4 +505,3 @@ const GradePage: React.FC = () => {
 };
 
 export default GradePage;
-

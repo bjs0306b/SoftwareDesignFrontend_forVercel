@@ -22,8 +22,10 @@ interface AuthState {
   userName: string;
   classStudents: StudentSummary[];
   subject: string;
-  grade: number;
-  gradeClass: number;
+  grade: number | null;
+  gradeClass: number | null;
+  studentId: number | null;
+  number: number | null;
   setUserName: (name: string) => void;
   setSchoolName: (name: string) => void;
   setRole: (role: RoleType) => void;
@@ -35,12 +37,17 @@ interface AuthState {
   setSubject: (subject: string) => void;
   setClassStudents: (students: StudentSummary[]) => void;
   clearClassStudents: () => void;
-
+  setStudentInfo: (info: {
+    studentId: number;
+    grade: number;
+    gradeClass: number;
+    number: number;
+  }) => void;
   resetAuth: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  role: "TEACHER",
+  role: "STUDENT",
   isHomeroom: false,
   accessToken: sessionStorage.getItem("accessToken"),
   refreshToken: sessionStorage.getItem("refreshToken"),
@@ -49,9 +56,12 @@ export const useAuthStore = create<AuthState>((set) => ({
   schoolName: "",
   userName: "",
   classStudents: [],
-  grade: 0,
-  gradeClass: 0,
   subject: "",
+  studentId: null,
+  grade: null,
+  gradeClass: null,
+  number: null,
+
   setUserName: (userName) => set({ userName }),
   setSchoolName: (schoolName) => set({ schoolName }),
   setRole: (role) => set({ role }),
@@ -68,16 +78,22 @@ export const useAuthStore = create<AuthState>((set) => ({
   clearClassStudents: () => set({ classStudents: [] }),
 
   setGradeAndClass: (grade, gradeClass) => set({ grade, gradeClass }),
+  setStudentInfo: ({ studentId, grade, gradeClass, number }) =>
+    set({ studentId, grade, gradeClass, number }),
   resetAuth: () => {
     sessionStorage.clear();
     set({
-      role: "TEACHER",
+      role: "STUDENT",
       isHomeroom: false,
       accessToken: null,
       refreshToken: null,
       schoolId: 0,
       classId: 0,
       classStudents: [],
+      studentId: null,
+      grade: null,
+      gradeClass: null,
+      number: null,
     });
   },
 }));
