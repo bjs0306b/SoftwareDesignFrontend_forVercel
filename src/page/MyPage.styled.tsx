@@ -277,3 +277,17 @@ export const KakaoButton = styled.div`
     font-weight: 400;
   }
 `;
+
+export const CreateButton = styled.button`
+  width: 23rem;
+  height: 3rem;
+  margin-bottom: 1rem;
+  border-radius: 0.625rem;
+  background: #146c94;
+  color: #fff;
+  text-align: center;
+  font-family: "Inter";
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+`;

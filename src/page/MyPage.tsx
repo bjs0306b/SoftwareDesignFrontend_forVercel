@@ -14,6 +14,7 @@ import {
   PreviewImg,
   ImageArea,
   KakaoButton,
+  CreateButton,
 } from "./MyPage.styled";
 import { useAuthStore } from "../stores/authStore";
 import axios from "../api/axiosInstance.ts";
@@ -240,6 +241,13 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
             <div>카카오 계정 연동</div>
           </KakaoButton>
         </Section>
+        {role === "STUDENT" && (
+          <Section>
+            <SectionTitle>학부모 계정 생성</SectionTitle>
+            <Line />
+            <CreateButton>학부모 계정 생성</CreateButton>
+          </Section>
+        )}
       </ModalContainer>
     </Overlay>
   );
