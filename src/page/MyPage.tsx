@@ -1,16 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import {
   ChangeButton,
   CloseButton,
-  DropDown,
-  DropdownBox,
-  InfoRow,
   InputArea,
   Line,
   ModalContainer,
   Overlay,
-  SchoolItem,
-  SchoolList,
   Section,
   SectionTitle,
   TitleArea,
@@ -18,17 +13,12 @@ import {
   FileButton,
   PreviewImg,
   ImageArea,
+  KakaoButton,
 } from "./MyPage.styled";
 import { useAuthStore } from "../stores/authStore";
 import axios from "../api/axiosInstance.ts";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
 const DEFAULT_IMAGE_URL = "/assets/img/photo.png";
-
-interface School {
-  schoolId: number;
-  schoolName: string;
-}
 
 interface MyPageProps {
   onClose: () => void;
@@ -36,94 +26,17 @@ interface MyPageProps {
 
 const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
   const role = useAuthStore((state) => state.role);
-  const isHomeroom = useAuthStore((state) => state.isHomeroom);
-  const setClassId = useAuthStore((state) => state.setClassId);
-  const setIsHomeroom = useAuthStore((state) => state.setIsHomeroom);
-  const schoolName = useAuthStore((state) => state.schoolName);
+  //비밀번호 변경용
   const schoolId = useAuthStore((state) => state.schoolId);
-  const { grade, gradeClass, setGradeAndClass } = useAuthStore();
-  const [selectedGrade, setSelectedGrade] = useState(grade?.toString() ?? "1");
-  const [selectedClass, setSelectedClass] = useState(
-    gradeClass?.toString() ?? "1"
-  );
-  const userName = useAuthStore((state) => state.userName);
-  const [name, setName] = useState(userName);
-  const navigate = useNavigate();
-
-  const handleUpdateUserInfo = async () => {
-    const prevName = useAuthStore.getState().userName;
-    const prevSchoolName = useAuthStore.getState().schoolName;
-
-    // 공백 제거한 현재 값
-    const trimmedName = name.trim();
-    const trimmedSchool = selectedSchool.trim();
-
-    // 변경 여부 판단 (빈 문자열 포함)
-    const isNameChanged = trimmedName && trimmedName !== prevName.trim();
-    const isSchoolChanged =
-      trimmedSchool && trimmedSchool !== prevSchoolName.trim();
-    const isImageChanged = previewUrl !== DEFAULT_IMAGE_URL;
-
-    // 변경된 정보가 전혀 없을 때
-    if (!isNameChanged && !isSchoolChanged && !isImageChanged) {
-      alert("변경된 정보가 없습니다.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("name", trimmedName || prevName);
-    formData.append("schoolName", trimmedSchool || prevSchoolName);
-
-    //학생일 때 프로필 추가
-    if (role === "STUDENT" && isImageChanged && selectedImage) {
-      formData.append("profile", selectedImage);
-    }
-
-    try {
-      const response = await axios.patch(
-        `/school/${schoolId}/users/me`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      if (response.data.status !== 200) return;
-
-      if (isSchoolChanged) {
-        alert("학교가 변경되었습니다. 다시 로그인해주세요.");
-        await handleLogout();
-        return;
-      }
-
-      alert("내 정보가 성공적으로 수정되었습니다.");
-      window.location.reload();
-    } catch (err) {
-      console.error("내 정보 수정 실패:", err);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      if (!schoolId) return;
-
-      const response = await axios.post(`/auth/sign-out`, {});
-      console.log("로그아웃 성공:", response.data);
-      navigate("/");
-    } catch (error) {
-      console.error("로그아웃 실패:", error);
-      throw error;
-    }
-  };
-
-  const [localIsHomeroom, setLocalIsHomeroom] = useState(isHomeroom);
   const [showPassword, setShowPassword] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+
+  //이미지 업로드용
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>(DEFAULT_IMAGE_URL);
 
   const handlePasswordChange = async () => {
     setPasswordError("");
@@ -157,61 +70,6 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
     }
   };
 
-  const [schoolQuery, setSchoolQuery] = useState("");
-  const [selectedSchool, setSelectedSchool] = useState("");
-  const [schoolResults, setSchoolResults] = useState<School[]>([]);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const searchTimeoutRef = useRef<number | null>(null);
-
-  const handleSchoolSearch = (query: string) => {
-    setSchoolQuery(query);
-    setSelectedSchool("");
-
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    if (query.trim().length === 0) {
-      setSchoolResults([]);
-      setIsDropdownOpen(false);
-      return;
-    }
-
-    setIsDropdownOpen(true);
-
-    searchTimeoutRef.current = window.setTimeout(async () => {
-      try {
-        const response = await axios.get("/school", {
-          params: { schoolName: query },
-        });
-        const schools: School[] = response.data.data;
-        setSchoolResults(schools);
-      } catch (error) {
-        console.error("학교 검색 실패", error);
-        setSchoolResults([]);
-      }
-    }, 300);
-  };
-
-  const handleSchoolSelect = (school: School) => {
-    setSelectedSchool(school.schoolName);
-    setSchoolQuery(school.schoolName);
-    setSchoolResults([]);
-    setIsDropdownOpen(false);
-  };
-
-  //컴포넌트 언마운트 시 클리어
-  useEffect(() => {
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>(DEFAULT_IMAGE_URL);
-
   // 파일 선택 핸들러
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -228,36 +86,42 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
     }
   };
 
-  //담임권한설정
-  const handleHomeroom = async () => {
-    try {
-      if (!localIsHomeroom) {
-        alert("담임 권한을 비활성화하려면 관리자에게 문의하세요.");
-        return;
-      }
+  const handleUpload = async () => {
+    const isImageChanged = previewUrl !== DEFAULT_IMAGE_URL;
 
-      const response = await axios.post(
-        `/school/${schoolId}/users/assign-homeroom`,
+    if (!isImageChanged) {
+      alert("사진이 변경되지 않았습니다.");
+      return;
+    }
+
+    const formData = new FormData();
+    //학생일 때 프로필 추가
+    if (role === "STUDENT" && isImageChanged && selectedImage) {
+      formData.append("profile", selectedImage);
+    }
+
+    try {
+      const response = await axios.patch(
+        `/school/${schoolId}/users/me`,
+        formData,
         {
-          grade: Number(selectedGrade),
-          gradeClass: Number(selectedClass),
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
 
-      if (response.data.status === 200) {
-        const { classId } = response.data;
-        setIsHomeroom(true);
-        setClassId(classId);
-        setGradeAndClass(Number(selectedGrade), Number(selectedClass));
+      if (response.data.status !== 200) return;
 
-        alert("담임 권한 설정이 완료되었습니다.");
-      } else {
-        alert(response.data.message || "담임 설정에 실패했습니다.");
-      }
-    } catch (error) {
-      console.error("담임 설정 실패:", error);
-      alert("담임 설정 중 오류가 발생했습니다.");
+      alert("사진이 성공적으로 변경되었습니다.");
+      window.location.reload();
+    } catch (err) {
+      console.error("사진 변경 실패:", err);
     }
+  };
+
+  const handleKakaoLogin = () => {
+    window.location.href = "http://3.38.130.125:3000/api/v1/auth/kakao/sign-in";
   };
 
   return (
@@ -281,123 +145,29 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
           </CloseButton>
         </TitleArea>
         <Line />
-        <Section>
-          <SectionTitle>개인정보</SectionTitle>
-          <Line />
-          {role === "STUDENT" && (
-            <>
-              <label>사진</label>
-              <ImageArea>
-                <input
-                  type="file"
-                  id="fileInput"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  onChange={handleImageChange}
-                />
-                {previewUrl && <PreviewImg src={previewUrl} alt="미리보기" />}
-                <FileButton
-                  onClick={() => document.getElementById("fileInput")?.click()}
-                >
-                  파일 선택
-                </FileButton>
-              </ImageArea>
-            </>
-          )}
-          <label>성명</label>
-          <InputArea>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </InputArea>
-          <label>학교명</label>
-          <InputArea style={{ position: "relative" }}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#666"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              style={{
-                position: "absolute",
-                left: "20",
-                top: "50%",
-                transform: "translateY(-50%)",
-              }}
-            >
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            <input
-              placeholder={schoolName}
-              type="text"
-              value={schoolQuery}
-              onChange={(e) => handleSchoolSearch(e.target.value)}
-              style={{ paddingLeft: "2rem" }}
-            />
-            {isDropdownOpen && schoolResults.length > 0 && (
-              <SchoolList>
-                {schoolResults.map((school) => (
-                  <SchoolItem
-                    key={school.schoolId}
-                    onClick={() => handleSchoolSelect(school)}
-                  >
-                    {school.schoolName}
-                  </SchoolItem>
-                ))}
-              </SchoolList>
-            )}
-          </InputArea>
-          <ChangeButton onClick={handleUpdateUserInfo}>
-            개인정보 변경
-          </ChangeButton>
-          {role === "TEACHER" && (
-            <>
-              <SectionTitle>담임교사 권한 설정</SectionTitle>
-              <Line />
-              <InfoRow>
-                담임교사 여부
-                <input
-                  type="checkbox"
-                  checked={localIsHomeroom}
-                  onChange={(e) => setLocalIsHomeroom(e.target.checked)}
-                />
-              </InfoRow>
-              <DropdownBox>
-                <DropDown
-                  value={selectedGrade}
-                  onChange={(e) => setSelectedGrade(e.target.value)}
-                >
-                  <option value="1">1학년</option>
-                  <option value="2">2학년</option>
-                  <option value="3">3학년</option>
-                </DropDown>
-                <DropDown
-                  id="semester"
-                  value={selectedClass}
-                  onChange={(e) => setSelectedClass(e.target.value)}
-                >
-                  <option value="1">1반</option>
-                  <option value="2">2반</option>
-                  <option value="3">3반</option>
-                  <option value="4">4반</option>
-                  <option value="5">5반</option>
-                  <option value="6">6반</option>
-                </DropDown>
-              </DropdownBox>
-              <ChangeButton onClick={handleHomeroom}>
-                담임권한 설정
-              </ChangeButton>
-            </>
-          )}
-        </Section>
-
+        {role === "STUDENT" && (
+          <Section>
+            <SectionTitle>사진 변경</SectionTitle>
+            <Line />
+            <label>사진</label>
+            <ImageArea>
+              <input
+                type="file"
+                id="fileInput"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={handleImageChange}
+              />
+              {previewUrl && <PreviewImg src={previewUrl} alt="미리보기" />}
+              <FileButton
+                onClick={() => document.getElementById("fileInput")?.click()}
+              >
+                파일 선택
+              </FileButton>
+            </ImageArea>
+            <ChangeButton onClick={handleUpload}>사진 변경</ChangeButton>
+          </Section>
+        )}
         <Section>
           <SectionTitle>비밀번호 변경</SectionTitle>
           <Line />
@@ -441,6 +211,34 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
           <ChangeButton onClick={handlePasswordChange}>
             비밀번호 변경
           </ChangeButton>
+        </Section>
+        <Section>
+          <SectionTitle>카카오 계정 연동</SectionTitle>
+          <Line />
+          <KakaoButton onClick={handleKakaoLogin}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="36"
+              height="36"
+              viewBox="0 0 36 36"
+              fill="none"
+            >
+              <g clipPath="url(#clip0_303_153)">
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M18 1.19995C8.05835 1.19995 0 7.42587 0 15.1045C0 19.88 3.11681 24.0899 7.86305 26.5939L5.86606 33.8889C5.68962 34.5335 6.42683 35.0473 6.99293 34.6738L15.7467 28.8964C16.4854 28.9676 17.2362 29.0093 18 29.0093C27.9409 29.0093 35.9999 22.7836 35.9999 15.1045C35.9999 7.42587 27.9409 1.19995 18 1.19995Z"
+                  fill="black"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_303_153">
+                  <rect width="35.9999" height="36" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+            <div>카카오 계정 연동</div>
+          </KakaoButton>
         </Section>
       </ModalContainer>
     </Overlay>

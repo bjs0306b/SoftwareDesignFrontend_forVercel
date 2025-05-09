@@ -337,7 +337,7 @@ const SignInPage: React.FC = () => {
                   </clipPath>
                 </defs>
               </svg>
-              <div>카카오로 로그인</div>
+              <div>카카오 로그인</div>
             </KakaoButton>
             <Line />
             <EmailButton onClick={() => setMode("signIn")}>

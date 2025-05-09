@@ -247,3 +247,33 @@ export const ChangeButton = styled.button`
   font-weight: 700;
   cursor: pointer;
 `;
+
+export const KakaoButton = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 20rem;
+  height: 3rem;
+  background: #fee500;
+  border-radius: 0.75rem;
+  padding: 0 1.5rem 0 1.5rem;
+  margin: 0.5rem 0 2rem 0;
+  cursor: pointer;
+
+  svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  div {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    color: rgba(0, 0, 0, 0.85);
+    text-align: center;
+    font-family: "Inter";
+    font-size: 1rem;
+    font-weight: 400;
+  }
+`;
