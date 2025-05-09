@@ -464,9 +464,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   };
 
   /* ------------------------------------------------------------------
-     부모(PARENT) — Header + PageArea만 렌더
+     부모(PARENT)
   ------------------------------------------------------------------ */
-  if (role === "TEACHER") {
+  if (role === "PARENT") {
     return (
       <LayoutWrapper data-testid="layout-wrapper">
         <Header data-testid="header">
@@ -486,7 +486,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           <UserArea data-testid="user-area">
             <div>
               <p>
-                {userName} {role === "TEACHER" ? "선생님" : "학생"}
+                Admin
               </p>
               <UserIconContainer id="userDropdown" onClick={toggleUserDropdown}>
                 <svg
@@ -523,7 +523,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                           />
                         </svg>
                         <p>
-                          {userName} {role === "TEACHER" ? "선생님" : "학생"}
+                          관리자
                         </p>
                       </DropdownFlexContainer>
                       <UserDropdownButtons>
@@ -540,66 +540,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               </UserIconContainer>
             </div>
           </UserArea>
-          <NotificationArea id="noteDropdown" onClick={toggleNoteDropdown}>
-            {hasUnread ? (
-              <BellAlert>
-                <img src={bellAlertIcon} alt="bell alert" />
-              </BellAlert>
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="40"
-                height="40"
-                viewBox="0 0 40 40"
-                fill="none"
-              >
-                <path
-                  d="M35 31.6667V33.3334H5V31.6667L8.33333 28.3334V18.3334C8.33333 13.1667 11.7167 8.61671 16.6667 7.15004V6.66671C16.6667 5.78265 17.0179 4.93481 17.643 4.30968C18.2681 3.68456 19.1159 3.33337 20 3.33337C20.8841 3.33337 21.7319 3.68456 22.357 4.30968C22.9821 4.93481 23.3333 5.78265 23.3333 6.66671V7.15004C28.2833 8.61671 31.6667 13.1667 31.6667 18.3334V28.3334L35 31.6667ZM23.3333 35C23.3333 35.8841 22.9821 36.7319 22.357 37.3571C21.7319 37.9822 20.8841 38.3334 20 38.3334C19.1159 38.3334 18.2681 37.9822 17.643 37.3571C17.0179 36.7319 16.6667 35.8841 16.6667 35"
-                  fill="black"
-                />
-              </svg>
-            )}
-            {isNoteDropdownOpen && (
-              <>
-                <NoteTriangle />
-                <NoteDropdownMenu>
-                  <div>
-                    {notifications.length === 0 ? (
-                      <NotificationEmpty>
-                        새로운 알림이 없습니다.
-                      </NotificationEmpty>
-                    ) : (
-                      notifications.map((note) => {
-                        const item = notificationItem[note.type];
-                        return (
-                          <NotificationItem
-                            key={note.notificationId}
-                            onClick={() =>
-                              handleNotificationClick(
-                                note.notificationId,
-                                note.type
-                              )
-                            }
-                            style={{ cursor: "pointer" }}
-                          >
-                            {item.icon}
-                            <div>
-                              <NotificationTitle>
-                                {item.title}
-                              </NotificationTitle>
-                              <NotificationText>
-                                {item.getText(userName)}
-                              </NotificationText>
-                            </div>
-                          </NotificationItem>
-                        );
-                      })
-                    )}
-                  </div>
-                </NoteDropdownMenu>
-              </>
-            )}
-          </NotificationArea>
         </Header>
 
         {/* 사이드바·탭 없이 곧장 PageArea */}
