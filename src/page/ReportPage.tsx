@@ -586,31 +586,35 @@ const ReportPage: React.FC = () => {
           {selectedType === "counseling" &&
             !selectedCounseling &&
             counselingResults.length > 0 && (
-              <CounselingSearchTable
-                data-testid="counseling-search-table"
-                data={counselingResults}
-                onSelect={(post) => {
-                  setSelectedCounseling(post);
-                  setCounselingQuery(post.title);
-                }}
-              />
+              <div data-testid="counseling-search-table"> 
+                <CounselingSearchTable
+                  data={counselingResults}
+                  onSelect={(post) => {
+                    setSelectedCounseling(post);
+                    setCounselingQuery(post.title);
+                  }}
+                />
+              </div>
             )}
           {selectedType === "counseling" &&
             selectedStudent &&
             selectedCounseling && (
-              <CounselingReport
-                data-testid="counseling-detail"
-                student={selectedStudent}
-                data={[selectedCounseling]}
-              />
+              <div data-testid="counseling-detail">
+                <CounselingReport
+                  
+                  student={selectedStudent}
+                  data={[selectedCounseling]}
+                />
+              </div>
             )}
           {selectedType === "feedback" && selectedStudent && (
-            <FeedBackReport
-              data-testid="feedback-report"
-              student={selectedStudent}
-              grade={selectedGrade}
-              feedbacks={feedbacks}
-            />
+            <div data-testid="feedback-report">
+              <FeedBackReport
+                student={selectedStudent}
+                grade={selectedGrade}
+                feedbacks={feedbacks}
+              />
+            </div>
           )}
         </ReportContainer>
       )}

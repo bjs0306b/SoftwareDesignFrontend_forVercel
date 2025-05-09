@@ -26,7 +26,7 @@ test.describe("homeroom teacher", () => {
     // 가이드 문구 존재
     await expect(
       page.getByText("좌측의 검색창에서 보고서를 생성할 학생을 선택하세요.")
-    ).toBeVisible();    
+    ).toBeVisible();
 
     // 기본 타입 = score
     await expect(page.getByTestId("select-type")).toHaveValue("score");
@@ -35,7 +35,9 @@ test.describe("homeroom teacher", () => {
   });
 
   /* ---------- 타입 전환 ---------- */
-  test("타입을 counseling으로 바꾸면 검색창 노출 & grade/semester 숨김", async ({ page }) => {
+  test("타입을 counseling으로 바꾸면 검색창 노출 & grade/semester 숨김", async ({
+    page,
+  }) => {
     await page.getByTestId("select-type").selectOption("counseling");
 
     await expect(page.getByTestId("counseling-search-box")).toBeVisible();
@@ -43,7 +45,9 @@ test.describe("homeroom teacher", () => {
     await expect(page.getByTestId("select-semester")).toBeHidden();
   });
 
-  test("타입을 feedback으로 바꾸면 grade만 노출 & semester 숨김", async ({ page }) => {
+  test("타입을 feedback으로 바꾸면 grade만 노출 & semester 숨김", async ({
+    page,
+  }) => {
     await page.getByTestId("select-type").selectOption("feedback");
 
     await expect(page.getByTestId("select-grade")).toBeVisible();
@@ -52,7 +56,9 @@ test.describe("homeroom teacher", () => {
   });
 
   /* ---------- 학생 선택 후 성적 보고서 ---------- */
-  test("학생을 선택하면 ScoreReport 컴포넌트가 렌더링된다", async ({ page }) => {
+  test("학생을 선택하면 ScoreReport 컴포넌트가 렌더링된다", async ({
+    page,
+  }) => {
     // 학생 선택
     await page
       .locator('[data-testid="student-list"] tbody tr:has-text("김민준")')
@@ -67,9 +73,7 @@ test.describe("homeroom teacher", () => {
     // 과목 셀 검증 (role=cell 사용)
     for (const subj of ["국어", "영어", "수학", "과학", "사회"]) {
       await expect(
-        page
-          .getByTestId("report-container")
-          .getByRole("cell", { name: subj })
+        page.getByTestId("report-container").getByRole("cell", { name: subj })
       ).toBeVisible();
     }
   });
@@ -78,7 +82,7 @@ test.describe("homeroom teacher", () => {
   test("Excel ↔ PDF 토글 스위치 동작", async ({ page }) => {
     const exportToggle = page.getByTestId("export-toggle");
     const excelLabel = exportToggle.getByText("Excel");
-    const pdfLabel   = exportToggle.getByText("PDF");
+    const pdfLabel = exportToggle.getByText("PDF");
 
     // 초기: Excel 활성
     await expect(excelLabel).toHaveCSS("color", "rgb(0, 0, 0)");
@@ -92,88 +96,44 @@ test.describe("homeroom teacher", () => {
   });
 
   /* ---------- 상담 검색 & 상세 ---------- */
-//   test("counseling 검색 → 결과 테이블 → 상세 뷰", async ({ page }) => {
-//     /* 1) API 모킹 */
-//     await page.route("**/consultation/students/**/search**", route =>
-//       route.fulfill({
-//         status: 200,
-//         contentType: "application/json",
-//         body: JSON.stringify({
-//           status: 200,
-//           data: [
-//             {
-//               consultationId: 123,
-//               studentId: 999,
-//               teacherId: 1,
-//               date: "2025-05-06",
-//               isPublicToSubject: false,
-//               content: "테스트 상담 내용",
-//               nextPlan: "다음 계획은 ~~ 입니다",
-//               title: "테스트상담",
-//               subject: "국어",
-//               author: "선생님",
-//               createdAt: "2025-05-06T10:00:00",
-//               updatedAt: "2025-05-06T10:00:00"
-//             }
-//           ]
-//         })
-//       })
-//     );
+  test("counseling 검색 → 결과 테이블 → 상세 뷰", async ({ page }) => {
+    await page.locator('[data-testid="student-list"] tbody tr').first().click();
+    await page.getByTestId("select-type").selectOption("counseling");
 
-//     /* 2) 학생 선택 & 타입 변경 */
-//     await page
-//       .locator('[data-testid="student-list"] tbody tr:has-text("김민준")')
-//       .click();
-//     await page.getByTestId("select-type").selectOption("counseling");
+    // 상담 검색창 활성화
+    await page.getByPlaceholder("상담 제목 검색").fill("ㅇㅇ");
+    await page.locator('input[placeholder="상담 제목 검색"] + button').click();
+    await page.waitForTimeout(350);
 
-//     /* 3) 검색 */
-//     await page.getByPlaceholder("상담 제목 검색").fill("테스트상담");
-//     await page.locator('input[placeholder="상담 제목 검색"] + button').click();
+    // 첫번째 행 클릭
 
-//     /* 4) 결과 테이블 표시 */
-//     const row = page
-//       .getByTestId("counseling-search-table")
-//       .getByRole("row", { name: /테스트상담/ });
-//     await expect(row).toBeVisible();
+    // 1) 테이블이 생길 때까지 대기
+    await page.waitForSelector('[data-testid="counseling-search-table"]');
 
-//     /* 5) 상세 뷰 진입 */
-//     await row.click();
-//     await page.waitForSelector('[data-testid="counseling-detail"]');
-//     await expect(page.getByText("테스트 상담 내용")).toBeVisible();
-//     await expect(
-//       page.getByText(/다음\s*계획|향후\s*계획|Next\s*plan/i, { exact: false })
-//     ).toBeVisible();
-//   });
+    // 2) tbody 첫 번째 행 선택
+    const row = page
+      .locator('[data-testid="counseling-search-table"] tbody tr')
+      .first();
 
-//   /* ---------- 피드백 보고서 ---------- */
-//   test("feedback 타입에서 피드백 항목이 표시된다", async ({ page }) => {
-//     /* API 모킹 */
-//     await page.route("**/feedback/students/**", route =>
-//       route.fulfill({
-//         status: 200,
-//         contentType: "application/json",
-//         body: JSON.stringify({
-//           status: 200,
-//           data: [
-//             { schoolYear: 1, category: "GRADE",      content: "A++"       },
-//             { schoolYear: 1, category: "BEHAVIOR",   content: "Excellent" },
-//             { schoolYear: 1, category: "ATTENDANCE", content: "Perfect"   },
-//             { schoolYear: 1, category: "ATTITUDE",   content: "Positive"  }
-//           ]
-//         })
-//       })
-//     );
+    await expect(row).toBeVisible(); // 이제 찾힘
 
-//     /* 학생 선택 & 타입 변경 */
-//     await page
-//       .locator('[data-testid="student-list"] tbody tr:has-text("김민준")')
-//       .click();
-//     await page.getByTestId("select-type").selectOption("feedback");
+    // 상세 뷰 진입
+    await row.click();
+    await page.waitForSelector('[data-testid="counseling-detail"]');
+    await expect(page.getByText("ㅇㅇㅇㅇ")).toBeVisible();
+  });
 
-//     /* 피드백 보고서 영역 검증 */
-//     await page.waitForSelector('[data-testid="feedback-report"]');
-//     for (const txt of ["A++", "Excellent", "Perfect", "Positive"]) {
-//       await expect(page.getByText(txt)).toBeVisible();
-//     }
-//   });
+  /* ---------- 피드백 보고서 ---------- */
+  test("feedback 타입에서 피드백 항목이 표시된다", async ({ page }) => {
+    // 학생 선택 & 타입 변경
+    await page.locator('[data-testid="student-list"] tbody tr').first().click();
+    await page.getByTestId("select-type").selectOption("feedback");
+
+    // 보고서 컨테이너가 뜰 때까지 대기
+    const report = page.getByTestId("feedback-report");
+    await expect(report).toBeVisible();
+
+    // 'ㅇㅇ' 텍스트가 네 군데(성적‧행동‧출결‧태도) 모두 렌더링됐는지 확인
+    await expect(report.getByText("ㅇㅇ", { exact: true })).toHaveCount(4);
+  });
 });
