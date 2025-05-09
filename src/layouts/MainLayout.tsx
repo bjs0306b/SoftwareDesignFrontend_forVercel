@@ -35,6 +35,7 @@ import {
   LogoContainer,
   BellAlert,
   NotificationEmpty,
+  ParentPageArea,
 } from "./MainLayout.styled";
 import MyPage from "../page/MyPage";
 import { useAuthStore } from "../stores/authStore";
@@ -461,6 +462,151 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     setSelectedStudent(null);
     navigate("/main");
   };
+
+  /* ------------------------------------------------------------------
+     부모(PARENT) — Header + PageArea만 렌더
+  ------------------------------------------------------------------ */
+  if (role === "TEACHER") {
+    return (
+      <LayoutWrapper data-testid="layout-wrapper">
+        <Header data-testid="header">
+          <LogoContainer
+            onClick={() => {
+              handleLogoClick();
+            }}
+            data-testid="logo-link"
+          >
+            <img
+              className="logo-img"
+              src={Logo}
+              alt="logo"
+              data-testid="logo"
+            />
+          </LogoContainer>
+          <UserArea data-testid="user-area">
+            <div>
+              <p>
+                {userName} {role === "TEACHER" ? "선생님" : "학생"}
+              </p>
+              <UserIconContainer id="userDropdown" onClick={toggleUserDropdown}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="44"
+                  height="48"
+                  viewBox="0 0 44 48"
+                  fill="none"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M22.0007 0.333374C10.0342 0.333374 0.333984 10.0335 0.333984 22C0.333984 33.9665 10.0342 43.6667 22.0007 43.6667C33.9672 43.6667 43.6673 33.9665 43.6673 22C43.6673 10.0335 33.9672 0.333374 22.0007 0.333374ZM14.4173 16.5834C14.4173 15.5875 14.6135 14.6014 14.9946 13.6814C15.3757 12.7613 15.9342 11.9253 16.6384 11.2211C17.3426 10.517 18.1786 9.95839 19.0986 9.57729C20.0187 9.19619 21.0048 9.00004 22.0007 9.00004C22.9965 9.00004 23.9826 9.19619 24.9027 9.57729C25.8227 9.95839 26.6587 10.517 27.3629 11.2211C28.0671 11.9253 28.6256 12.7613 29.0067 13.6814C29.3878 14.6014 29.584 15.5875 29.584 16.5834C29.584 18.5946 28.785 20.5235 27.3629 21.9456C25.9407 23.3678 24.0119 24.1667 22.0007 24.1667C19.9894 24.1667 18.0606 23.3678 16.6384 21.9456C15.2163 20.5235 14.4173 18.5946 14.4173 16.5834ZM35.5597 32.7987C33.9372 34.8383 31.8752 36.4853 29.5275 37.6167C27.1798 38.7482 24.6068 39.335 22.0007 39.3334C19.3945 39.335 16.8216 38.7482 14.4738 37.6167C12.1261 36.4853 10.0641 34.8383 8.44165 32.7987C11.9538 30.2789 16.7465 28.5 22.0007 28.5C27.2548 28.5 32.0475 30.2789 35.5597 32.7987Z"
+                    fill="black"
+                  />
+                </svg>
+                {isUserDropdownOpen && (
+                  <>
+                    <UserTriangle />
+                    <UserDropdownMenu>
+                      <DropdownFlexContainer>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="44"
+                          height="48"
+                          viewBox="0 0 44 48"
+                          fill="none"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            clip-rule="evenodd"
+                            d="M22.0007 0.333374C10.0342 0.333374 0.333984 10.0335 0.333984 22C0.333984 33.9665 10.0342 43.6667 22.0007 43.6667C33.9672 43.6667 43.6673 33.9665 43.6673 22C43.6673 10.0335 33.9672 0.333374 22.0007 0.333374ZM14.4173 16.5834C14.4173 15.5875 14.6135 14.6014 14.9946 13.6814C15.3757 12.7613 15.9342 11.9253 16.6384 11.2211C17.3426 10.517 18.1786 9.95839 19.0986 9.57729C20.0187 9.19619 21.0048 9.00004 22.0007 9.00004C22.9965 9.00004 23.9826 9.19619 24.9027 9.57729C25.8227 9.95839 26.6587 10.517 27.3629 11.2211C28.0671 11.9253 28.6256 12.7613 29.0067 13.6814C29.3878 14.6014 29.584 15.5875 29.584 16.5834C29.584 18.5946 28.785 20.5235 27.3629 21.9456C25.9407 23.3678 24.0119 24.1667 22.0007 24.1667C19.9894 24.1667 18.0606 23.3678 16.6384 21.9456C15.2163 20.5235 14.4173 18.5946 14.4173 16.5834ZM35.5597 32.7987C33.9372 34.8383 31.8752 36.4853 29.5275 37.6167C27.1798 38.7482 24.6068 39.335 22.0007 39.3334C19.3945 39.335 16.8216 38.7482 14.4738 37.6167C12.1261 36.4853 10.0641 34.8383 8.44165 32.7987C11.9538 30.2789 16.7465 28.5 22.0007 28.5C27.2548 28.5 32.0475 30.2789 35.5597 32.7987Z"
+                            fill="black"
+                          />
+                        </svg>
+                        <p>
+                          {userName} {role === "TEACHER" ? "선생님" : "학생"}
+                        </p>
+                      </DropdownFlexContainer>
+                      <UserDropdownButtons>
+                        <UserDropdownItem onClick={() => setIsMyPageOpen(true)}>
+                          개인정보 수정/설정
+                        </UserDropdownItem>
+                        <UserDropdownItem onClick={handleLogout}>
+                          로그아웃
+                        </UserDropdownItem>
+                      </UserDropdownButtons>
+                    </UserDropdownMenu>
+                  </>
+                )}
+              </UserIconContainer>
+            </div>
+          </UserArea>
+          <NotificationArea id="noteDropdown" onClick={toggleNoteDropdown}>
+            {hasUnread ? (
+              <BellAlert>
+                <img src={bellAlertIcon} alt="bell alert" />
+              </BellAlert>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="40"
+                height="40"
+                viewBox="0 0 40 40"
+                fill="none"
+              >
+                <path
+                  d="M35 31.6667V33.3334H5V31.6667L8.33333 28.3334V18.3334C8.33333 13.1667 11.7167 8.61671 16.6667 7.15004V6.66671C16.6667 5.78265 17.0179 4.93481 17.643 4.30968C18.2681 3.68456 19.1159 3.33337 20 3.33337C20.8841 3.33337 21.7319 3.68456 22.357 4.30968C22.9821 4.93481 23.3333 5.78265 23.3333 6.66671V7.15004C28.2833 8.61671 31.6667 13.1667 31.6667 18.3334V28.3334L35 31.6667ZM23.3333 35C23.3333 35.8841 22.9821 36.7319 22.357 37.3571C21.7319 37.9822 20.8841 38.3334 20 38.3334C19.1159 38.3334 18.2681 37.9822 17.643 37.3571C17.0179 36.7319 16.6667 35.8841 16.6667 35"
+                  fill="black"
+                />
+              </svg>
+            )}
+            {isNoteDropdownOpen && (
+              <>
+                <NoteTriangle />
+                <NoteDropdownMenu>
+                  <div>
+                    {notifications.length === 0 ? (
+                      <NotificationEmpty>
+                        새로운 알림이 없습니다.
+                      </NotificationEmpty>
+                    ) : (
+                      notifications.map((note) => {
+                        const item = notificationItem[note.type];
+                        return (
+                          <NotificationItem
+                            key={note.notificationId}
+                            onClick={() =>
+                              handleNotificationClick(
+                                note.notificationId,
+                                note.type
+                              )
+                            }
+                            style={{ cursor: "pointer" }}
+                          >
+                            {item.icon}
+                            <div>
+                              <NotificationTitle>
+                                {item.title}
+                              </NotificationTitle>
+                              <NotificationText>
+                                {item.getText(userName)}
+                              </NotificationText>
+                            </div>
+                          </NotificationItem>
+                        );
+                      })
+                    )}
+                  </div>
+                </NoteDropdownMenu>
+              </>
+            )}
+          </NotificationArea>
+        </Header>
+
+        {/* 사이드바·탭 없이 곧장 PageArea */}
+        <ParentPageArea data-testid="page-area">{children}</ParentPageArea>
+      </LayoutWrapper>
+    );
+  }
 
   return (
     <LayoutWrapper data-testid="layout-wrapper">

@@ -398,3 +398,12 @@ export const PageArea = styled.div`
   border: 1px solid #000;
   background: #fff;
 `;
+
+export const ParentPageArea = styled.div`
+  width: 112rem;
+  height: 53.5rem;
+  margin-left: 2rem;
+  border-radius: 0rem 0rem 1.25rem 1.25rem;
+  border: 1px solid #000;
+  background: #fff;
+`;

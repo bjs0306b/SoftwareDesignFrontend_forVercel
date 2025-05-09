@@ -1,4 +1,5 @@
-import React from "react";
+import React, {useEffect} from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/authStore";
 import { styled } from "styled-components";
 
@@ -39,6 +40,11 @@ export const Line = styled.div`
 const MainPage: React.FC = () => {
   const userName = useAuthStore((state) => state.userName);
   const role = useAuthStore((state) => state.role);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (role === "PARENT") navigate("/admin", { replace: true });
+  }, [role, navigate]);
 
   return (
     <MainContainer>

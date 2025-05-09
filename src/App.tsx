@@ -10,6 +10,7 @@ import SignInPage from "./page/SignInPage";
 import StudentManagementPage from "./page/StudentManagementPage";
 import GradePage from "./page/GradePage";
 import ReportPage from "./page/ReportPage";
+import AdminPage from "./page/AdminPage";
 
 const App: React.FC = () => {
   return (
@@ -24,6 +25,17 @@ const App: React.FC = () => {
             </MainLayout>
           }
         />
+
+        {/* ★ 관리자 전용 */}
+        <Route
+          path="/admin"
+          element={
+            <MainLayout>
+              <AdminPage />
+            </MainLayout>
+          }
+        />
+        
         <Route
           path="/student-info"
           element={
