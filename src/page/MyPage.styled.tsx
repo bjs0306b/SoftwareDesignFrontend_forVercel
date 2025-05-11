@@ -18,7 +18,7 @@ export const ModalContainer = styled.div`
   background: white;
   border-radius: 0.625rem;
   width: 78.25rem;
-  max-height: 60rem;
+  max-height: 63rem;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   z-index: 1001;
 `;
@@ -290,4 +290,8 @@ export const CreateButton = styled.button`
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
+`;
+
+export const PasswordTitle = styled.h1`
+  text-align: center;
 `;
