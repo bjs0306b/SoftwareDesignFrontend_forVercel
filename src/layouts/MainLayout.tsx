@@ -466,7 +466,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   /* ------------------------------------------------------------------
      부모(PARENT)
   ------------------------------------------------------------------ */
-  if (role === "PARENT") {
+  if (role === "ADMIN") {
     return (
       <LayoutWrapper data-testid="layout-wrapper">
         <Header data-testid="header">
@@ -485,9 +485,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           </LogoContainer>
           <UserArea data-testid="user-area">
             <div>
-              <p>
-                Admin
-              </p>
+              <p>Admin</p>
               <UserIconContainer id="userDropdown" onClick={toggleUserDropdown}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -522,9 +520,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                             fill="black"
                           />
                         </svg>
-                        <p>
-                          관리자
-                        </p>
+                        <p>관리자</p>
                       </DropdownFlexContainer>
                       <UserDropdownButtons>
                         <UserDropdownItem onClick={() => setIsMyPageOpen(true)}>
@@ -542,8 +538,23 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           </UserArea>
         </Header>
 
-        {/* 사이드바·탭 없이 곧장 PageArea */}
+        <TabArea>
+          <TabButton
+            $isActive={location.pathname === "/assign"}
+            onClick={() => navigate("/assign")}
+          >
+            <p>학급 담임/학생 할당</p>
+          </TabButton>
+
+          <TabButton
+            $isActive={location.pathname === "/add"}
+            onClick={() => navigate("/add")}
+          >
+            <p>계정 생성</p>
+          </TabButton>
+        </TabArea>
         <ParentPageArea data-testid="page-area">{children}</ParentPageArea>
+        {isMyPageOpen && <MyPage onClose={() => setIsMyPageOpen(false)} />}
       </LayoutWrapper>
     );
   }

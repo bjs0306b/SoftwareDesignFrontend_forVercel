@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export type RoleType = "STUDENT" | "TEACHER" | "PARENT";
+export type RoleType = "STUDENT" | "TEACHER" | "PARENT" | "ADMIN";
 
 interface StudentSummary {
   studentId: number;

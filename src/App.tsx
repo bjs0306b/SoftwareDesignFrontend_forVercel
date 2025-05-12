@@ -10,7 +10,8 @@ import SignInPage from "./page/SignInPage";
 import StudentManagementPage from "./page/StudentManagementPage";
 import GradePage from "./page/GradePage";
 import ReportPage from "./page/ReportPage";
-import AdminPage from "./page/AdminPage";
+import AdminAssignPage from "./page/AdminAssignPage";
+import AdminAddPage from "./page/AdminAddPage";
 
 const App: React.FC = () => {
   return (
@@ -28,14 +29,22 @@ const App: React.FC = () => {
 
         {/* ★ 관리자 전용 */}
         <Route
-          path="/admin"
+          path="/assign"
           element={
             <MainLayout>
-              <AdminPage />
+              <AdminAssignPage />
             </MainLayout>
           }
         />
-        
+        <Route
+          path="/add"
+          element={
+            <MainLayout>
+              <AdminAddPage />
+            </MainLayout>
+          }
+        />
+
         <Route
           path="/student-info"
           element={
