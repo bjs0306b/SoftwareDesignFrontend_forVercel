@@ -203,7 +203,7 @@ test.describe("homeroom teacher", () => {
 
     // 5) after: 모두 활성화(contenteditable="true")
     for (let i = 0; i < count; i++) {
-      await expect(cells.nth(i)).toHaveAttribute("contenteditable", "true");
+      await expect(cells.nth(i)).toHaveJSProperty("isContentEditable", true);
     }
 
     // 6) 첫 번째 날짜 셀에 '1' 입력 후 blur

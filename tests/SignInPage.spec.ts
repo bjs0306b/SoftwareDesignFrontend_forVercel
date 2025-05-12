@@ -8,7 +8,7 @@ test.describe("homeroom teacher", () => {
 
   test("초기 화면에 카카오/이메일 로그인 버튼이 보인다", async ({ page }) => {
     // KakaoButton, EmailButton 모두 <div>라 getByRole로 안잡히므로 getByText로 찾습니다.
-    await expect(page.getByText("카카오로 로그인")).toBeVisible();
+    await expect(page.getByText("카카오 로그인")).toBeVisible();
     await expect(page.getByText("이메일로 로그인")).toBeVisible();
   });
 

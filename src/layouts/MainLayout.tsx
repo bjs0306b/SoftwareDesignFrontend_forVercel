@@ -575,7 +575,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <p>
               {userName} {role === "TEACHER" ? "선생님" : "학생"}
             </p>
-            <UserIconContainer id="userDropdown" onClick={toggleUserDropdown}>
+            <UserIconContainer data-testid="user-icon" id="userDropdown" onClick={toggleUserDropdown}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="44"

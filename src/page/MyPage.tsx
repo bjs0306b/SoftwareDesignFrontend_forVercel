@@ -126,8 +126,11 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
   };
 
   return (
-    <Overlay onClick={onClose}>
-      <ModalContainer onClick={(e) => e.stopPropagation()}>
+    <Overlay data-testid="mypage-overlay" onClick={onClose}>
+      <ModalContainer
+        data-testid="mypage-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
         <TitleArea>
           <h2>마이페이지</h2>
           <CloseButton onClick={onClose}>
@@ -147,12 +150,13 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
         </TitleArea>
         <Line />
         {role === "STUDENT" && (
-          <Section>
+          <Section data-testid="photo-section">
             <SectionTitle>사진 변경</SectionTitle>
             <Line />
             <label>사진</label>
             <ImageArea>
               <input
+                data-testid="file-input"
                 type="file"
                 id="fileInput"
                 accept="image/*"
@@ -166,27 +170,31 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
                 파일 선택
               </FileButton>
             </ImageArea>
-            <ChangeButton onClick={handleUpload}>사진 변경</ChangeButton>
+            <ChangeButton data-testid="upload-button" onClick={handleUpload}>
+              사진 변경
+            </ChangeButton>
           </Section>
         )}
-        <Section>
+        <Section data-testid="password-section">
           <SectionTitle>비밀번호 변경</SectionTitle>
           <Line />
           <label>기존 비밀번호</label>
           <InputArea>
             <input
+              data-testid="input-current-password"
               type={showPassword ? "text" : "password"}
               placeholder="영문+숫자"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
             />
-            <ToggleButton onClick={() => setShowPassword(!showPassword)}>
+            <ToggleButton  data-testid="password-toggle-visibility" onClick={() => setShowPassword(!showPassword)}>
               {showPassword ? <FiEyeOff /> : <FiEye />}
             </ToggleButton>
           </InputArea>
           <label>변경 비밀번호</label>
           <InputArea>
             <input
+              data-testid="input-new-password"
               type={showPassword ? "text" : "password"}
               placeholder="영문+숫자"
               value={newPassword}
@@ -199,6 +207,7 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
           <label>변경 비밀번호 확인</label>
           <InputArea>
             <input
+              data-testid="input-confirm-password"
               type={showPassword ? "text" : "password"}
               placeholder="영문+숫자"
               value={confirmPassword}
@@ -208,15 +217,18 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
               {showPassword ? <FiEyeOff /> : <FiEye />}
             </ToggleButton>
           </InputArea>
-          {passwordError && <p>{passwordError}</p>}
-          <ChangeButton onClick={handlePasswordChange}>
+          {passwordError && <p data-testid="password-error">{passwordError}</p>}
+          <ChangeButton
+            data-testid="password-change-button"
+            onClick={handlePasswordChange}
+          >
             비밀번호 변경
           </ChangeButton>
         </Section>
-        <Section>
+        <Section data-testid="kakao-section">
           <SectionTitle>카카오 계정 연동</SectionTitle>
           <Line />
-          <KakaoButton onClick={handleKakaoLogin}>
+          <KakaoButton data-testid="kakao-button" onClick={handleKakaoLogin}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="36"
@@ -242,10 +254,12 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
           </KakaoButton>
         </Section>
         {role === "STUDENT" && (
-          <Section>
+          <Section data-testid="parent-section">
             <SectionTitle>학부모 계정 생성</SectionTitle>
             <Line />
-            <CreateButton>학부모 계정 생성</CreateButton>
+            <CreateButton data-testid="parent-create-button">
+              학부모 계정 생성
+            </CreateButton>
           </Section>
         )}
       </ModalContainer>

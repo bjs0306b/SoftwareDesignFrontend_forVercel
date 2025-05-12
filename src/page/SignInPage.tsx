@@ -114,7 +114,7 @@ const SignInPage: React.FC = () => {
       }
 
       const response = await axios.post("/api/v1/auth/sign-in", {
-        email: loginEmail,
+        loginId: loginEmail,
         password: loginPassword,
         schoolName: selectedSchool,
       });
