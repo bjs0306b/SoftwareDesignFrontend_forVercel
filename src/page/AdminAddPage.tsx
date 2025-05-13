@@ -14,6 +14,7 @@ const AdminAddPage: React.FC = () => {
   /* ───── 학생 폼 상태 ───── */
   const [stuForm, setStuForm] = useState({
     name: '',
+    email: '',        // ← 추가
     grade: '',
     phone: '',
     address: '',
@@ -26,23 +27,27 @@ const AdminAddPage: React.FC = () => {
     subject: '국어',
   });
 
-  /* ───── 입력 핸들러 ───── */
   const handleStuChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setStuForm({ ...stuForm, [e.target.name]: e.target.value });
   const handleTchChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => setTchForm({ ...tchForm, [e.target.name]: e.target.value });
 
-  /* ───── 제출 ───── */
   const submitStudent = async (e: React.FormEvent) => {
     e.preventDefault();
-    // 실제 API 경로에 맞게 수정
     await axiosInstance.post('/account/student', {
       ...stuForm,
       role: 'STUDENT',
     });
     alert('학생 계정이 생성되었습니다!');
-    setStuForm({ name: '', grade: '', phone: '', address: '', parentPhone: '' });
+    setStuForm({
+      name: '',
+      email: '',     // ← 초기화
+      grade: '',
+      phone: '',
+      address: '',
+      parentPhone: '',
+    });
   };
 
   const submitTeacher = async (e: React.FormEvent) => {
@@ -60,13 +65,21 @@ const AdminAddPage: React.FC = () => {
       {/* ───────── 학생 ───────── */}
       <Column>
         <h2>학생</h2>
-
         <Form onSubmit={submitStudent}>
 
           <Label>이름</Label>
           <Input
             name="name"
             value={stuForm.name}
+            onChange={handleStuChange}
+            required
+          />
+
+          <Label>이메일</Label>        {/* ← 추가 */}
+          <Input
+            type="email"
+            name="email"
+            value={stuForm.email}
             onChange={handleStuChange}
             required
           />
@@ -106,10 +119,9 @@ const AdminAddPage: React.FC = () => {
 
       {/* ───────── 교사 ───────── */}
       <Column>
-        {/* 오른쪽은 구분선이 없으므로 border‑right 없음 */}
         <h2>담임</h2>
         <Form onSubmit={submitTeacher}>
-          
+
           <Label>이름</Label>
           <Input
             name="name"
