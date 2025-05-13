@@ -167,6 +167,20 @@ const SignInPage: React.FC = () => {
     }
   }, [location.search, navigate, setAuthTokens, setSchoolAndClass]);
 
+  //인증코드 발송
+  const SendVerificationCode = async () => {
+    try {
+      await axios.get(`/api/v1/email/code`, {
+        params: { email },
+      });
+      alert("인증 코드가 이메일로 전송되었습니다.");
+      setMode("verification");
+    } catch (err) {
+      console.error("인증 코드 발송 실패", err);
+      alert("인증 코드 발송에 실패했습니다.");
+    }
+  };
+
   const renderForm = () => {
     switch (mode) {
       case "selectSignIn":
@@ -307,7 +321,7 @@ const SignInPage: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </InputArea>
-            <SignButton onClick={() => setMode("verification")}>
+            <SignButton onClick={() => SendVerificationCode()}>
               <p>비밀번호 재설정 메일 전송</p>
             </SignButton>
           </>
