@@ -181,6 +181,20 @@ const SignInPage: React.FC = () => {
     }
   };
 
+  const handleVerifyCode = async () => {
+    try {
+      await axios.post("/api/v1/email/find-password", {
+        code: verificationCode,
+        email,
+      });
+      alert("인증이 완료되었습니다.");
+      setMode("resetPassword");
+    } catch (err) {
+      console.error("인증 코드 확인 실패", err);
+      alert("인증 코드가 올바르지 않습니다.");
+    }
+  };
+
   const renderForm = () => {
     switch (mode) {
       case "selectSignIn":
@@ -343,7 +357,7 @@ const SignInPage: React.FC = () => {
                 onChange={(e) => setVerificationCode(e.target.value)}
               />
             </InputArea>
-            <SignButton onClick={() => setMode("resetPassword")}>
+            <SignButton onClick={() => handleVerifyCode()}>
               <p>인증하기</p>
             </SignButton>
           </>
