@@ -43,7 +43,7 @@ const MainPage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (role === "PARENT") navigate("/add", { replace: true });
+    if (role === "ADMIN") navigate("/add", { replace: true });
   }, [role, navigate]);
 
   return (

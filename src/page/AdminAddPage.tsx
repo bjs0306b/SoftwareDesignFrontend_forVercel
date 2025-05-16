@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import axiosInstance from '../api/axiosInstance';
+import React, { useState } from "react";
+import axios from "axios"; 
 import {
   Page,
   Column,
@@ -8,65 +8,100 @@ import {
   Input,
   Select,
   SubmitButton,
-} from './AdminAddPage.styled';
+} from "./AdminAddPage.styled";
 
 const AdminAddPage: React.FC = () => {
-  /* ───── 학생 폼 상태 ───── */
   const [stuForm, setStuForm] = useState({
-    name: '',
-    email: '',        // ← 추가
-    grade: '',
-    phone: '',
-    address: '',
-    parentPhone: '',
+    name: "",
+    email: "",
+    grade: 1,
+    phonenumber: "",
+    homenumber: "",
+    address: "",
   });
 
-  /* ───── 교사 폼 상태 ───── */
   const [tchForm, setTchForm] = useState({
-    name: '',
-    subject: '국어',
+    name: "",
+    email: "",
+    subject: "과학",
   });
 
-  const handleStuChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setStuForm({ ...stuForm, [e.target.name]: e.target.value });
+  const handleStuChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type } = e.target;
+    setStuForm((prev) => ({
+      ...prev,
+      [name]: type === "number" ? Number(value) : value,
+    }));
+  };
+
   const handleTchChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => setTchForm({ ...tchForm, [e.target.name]: e.target.value });
 
   const submitStudent = async (e: React.FormEvent) => {
     e.preventDefault();
-    await axiosInstance.post('/account/student', {
-      ...stuForm,
-      role: 'STUDENT',
-    });
-    alert('학생 계정이 생성되었습니다!');
-    setStuForm({
-      name: '',
-      email: '',     // ← 초기화
-      grade: '',
-      phone: '',
-      address: '',
-      parentPhone: '',
-    });
+    try {
+      const token = sessionStorage.getItem("accessToken");
+      const response = await axios.post(
+        "api/v1/auth/sign-up",
+        {
+          ...stuForm,
+          role: "STUDENT",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      alert("학생 계정이 생성되었습니다!");
+      console.log(response.data);
+      setStuForm({
+        name: "",
+        email: "",
+        grade: 1,
+        phonenumber: "",
+        homenumber: "",
+        address: "",
+      });
+    } catch (error) {
+      console.error("학생 계정 생성 실패:", error);
+      alert("학생 계정 생성에 실패했습니다.");
+    }
   };
 
   const submitTeacher = async (e: React.FormEvent) => {
     e.preventDefault();
-    await axiosInstance.post('/account/teacher', {
-      ...tchForm,
-      role: 'TEACHER',
-    });
-    alert('교사 계정이 생성되었습니다!');
-    setTchForm({ name: '', subject: '국어' });
+    try {
+      const token = sessionStorage.getItem("accessToken");
+      console.log(tchForm);
+      const response = await axios.post(
+        "api/v1/auth/sign-up",
+        {
+          ...tchForm,
+          role: "TEACHER",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      alert("교사 계정이 생성되었습니다!");
+      console.log(response.data);
+      setTchForm({ name: "", email: "", subject: "과학" });
+    } catch (error) {
+      console.error("교사 계정 생성 실패:", error);
+      alert("교사 계정 생성에 실패했습니다.");
+    }
   };
 
   return (
     <Page>
-      {/* ───────── 학생 ───────── */}
+      {/* 학생 폼 */}
       <Column>
         <h2>학생</h2>
         <Form onSubmit={submitStudent}>
-
           <Label>이름</Label>
           <Input
             name="name"
@@ -74,8 +109,7 @@ const AdminAddPage: React.FC = () => {
             onChange={handleStuChange}
             required
           />
-
-          <Label>이메일</Label>        {/* ← 추가 */}
+          <Label>이메일</Label>
           <Input
             type="email"
             name="email"
@@ -83,45 +117,43 @@ const AdminAddPage: React.FC = () => {
             onChange={handleStuChange}
             required
           />
-
           <Label>학년</Label>
           <Input
             name="grade"
+            type="number"
             value={stuForm.grade}
             onChange={handleStuChange}
             required
           />
-
           <Label>전화번호</Label>
           <Input
-            name="phone"
-            value={stuForm.phone}
+            name="phonenumber"
+            value={stuForm.phonenumber}
             onChange={handleStuChange}
+            required
           />
-
           <Label>집주소</Label>
           <Input
             name="address"
             value={stuForm.address}
             onChange={handleStuChange}
+            required
           />
-
           <Label>부모님 연락처</Label>
           <Input
-            name="parentPhone"
-            value={stuForm.parentPhone}
+            name="homenumber"
+            value={stuForm.homenumber}
             onChange={handleStuChange}
+            required
           />
-
           <SubmitButton type="submit">계정 생성</SubmitButton>
         </Form>
       </Column>
 
-      {/* ───────── 교사 ───────── */}
+      {/* 교사 폼 */}
       <Column>
         <h2>담임</h2>
         <Form onSubmit={submitTeacher}>
-
           <Label>이름</Label>
           <Input
             name="name"
@@ -129,7 +161,14 @@ const AdminAddPage: React.FC = () => {
             onChange={handleTchChange}
             required
           />
-
+          <Label>이메일</Label>
+          <Input
+            type="email"
+            name="email"
+            value={tchForm.email}
+            onChange={handleTchChange}
+            required
+          />
           <Label>담당과목</Label>
           <Select
             name="subject"
@@ -142,7 +181,6 @@ const AdminAddPage: React.FC = () => {
             <option>과학</option>
             <option>사회</option>
           </Select>
-
           <SubmitButton type="submit">계정 생성</SubmitButton>
         </Form>
       </Column>

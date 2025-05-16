@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axiosInstance from "../api/axiosInstance";
 import {
   PageWrapper,
@@ -26,9 +26,6 @@ import {
 } from "./AdminAssignPage.styled";
 import { useAuthStore } from "../stores/authStore";
 
-const USE_MOCK = true;
-
-/* ──────────────── Types ──────────────── */
 interface ClassInfo {
   classId: number;
   grade: number;
@@ -37,7 +34,9 @@ interface ClassInfo {
 interface TeacherInfo {
   teacherId: number;
   name: string;
-  classId: number | null;
+  subject: string;
+  loginId?: string;
+  email?: string;
 }
 interface StudentInfo {
   studentId: number;
@@ -46,206 +45,186 @@ interface StudentInfo {
   number?: number; // ← 번호(1,2,3…)
 }
 
-/* ──────────────── Mock Data ──────────────── */
-const delay = (ms = 100) => new Promise((r) => setTimeout(r, ms));
-
-const mockClasses: ClassInfo[] = [
-  { classId: 101, grade: 1, gradeClass: 1 },
-  { classId: 102, grade: 1, gradeClass: 2 },
-  { classId: 201, grade: 2, gradeClass: 1 },
-];
-const mockAllTeachers: TeacherInfo[] = [
-  { teacherId: 11, name: "김교사", classId: 101 },
-  { teacherId: 12, name: "이교사", classId: null },
-  { teacherId: 13, name: "박교사", classId: 201 },
-  { teacherId: 14, name: "최교사", classId: null },
-];
-const mockAllStudents: StudentInfo[] = [
-  { studentId: 1101, name: "김민준", classId: 101 },
-  { studentId: 1102, name: "이서연", classId: 101 },
-  { studentId: 1201, name: "정지호", classId: 102 },
-  { studentId: 1202, name: "조예린", classId: 102 },
-  { studentId: 1301, name: "한수빈", classId: null },
-  { studentId: 1302, name: "오지훈", classId: null },
-];
-
-const mockApi = {
-  getClassList: async () => {
-    await delay();
-    return mockClasses;
-  },
-  getStudentsInClass: async (cid: number) => {
-    await delay();
-    return mockAllStudents.filter((s) => s.classId === cid);
-  },
-  getUnassignedStudents: async () => {
-    await delay();
-    return mockAllStudents.filter((s) => s.classId === null);
-  },
-  addStudentToClass: async (cid: number, sid: number) => {
-    await delay();
-    const s = mockAllStudents.find((v) => v.studentId === sid);
-    if (s) s.classId = cid;
-  },
-  removeStudentFromClass: async (sid: number) => {
-    await delay();
-    const s = mockAllStudents.find((v) => v.studentId === sid);
-    if (s) s.classId = null;
-  },
-  getHomeroomTeacher: async (cid: number) => {
-    await delay();
-    return mockAllTeachers.find((t) => t.classId === cid) || null;
-  },
-  getUnassignedTeachers: async () => {
-    await delay();
-    return mockAllTeachers.filter((t) => t.classId === null);
-  },
-  assignHomeroom: async (cid: number, tid: number) => {
-    await delay();
-    mockAllTeachers.forEach((t) => {
-      if (t.classId === cid) t.classId = null;
-    });
-    const t = mockAllTeachers.find((v) => v.teacherId === tid);
-    if (t) t.classId = cid;
-  },
-  removeHomeroom: async (cid: number) => {
-    await delay();
-    const t = mockAllTeachers.find((v) => v.classId === cid);
-    if (t) t.classId = null;
-  },
-};
-
-/* ──────────────── Real API 래퍼 ──────────────── */
-const realApi = (schoolId: number | null) => ({
-  getClassList: () =>
-    axiosInstance.get(`/school/${schoolId}/classes`).then((r) => r.data.data),
-  getStudentsInClass: (cid: number) =>
-    axiosInstance.get(`/class/${cid}/students`).then((r) => r.data.data),
-  getUnassignedStudents: () =>
-    axiosInstance
-      .get(`/school/${schoolId}/students/unassigned`)
-      .then((r) => r.data.data),
-  addStudentToClass: (cid: number, sid: number) =>
-    axiosInstance.post(`/class/${cid}/student/${sid}`),
-  removeStudentFromClass: (sid: number) =>
-    axiosInstance.delete(`/student/${sid}/class`),
-  getHomeroomTeacher: (cid: number) =>
-    axiosInstance.get(`/class/${cid}/homeroom`).then((r) => r.data.data),
-  getUnassignedTeachers: () =>
-    axiosInstance
-      .get(`/school/${schoolId}/teachers/unassigned`)
-      .then((r) => r.data.data),
-  assignHomeroom: (cid: number, tid: number) =>
-    axiosInstance.post(`/class/${cid}/homeroom/${tid}`),
-  removeHomeroom: (cid: number) =>
-    axiosInstance.delete(`/class/${cid}/homeroom`),
-});
-
 const AdminAssignPage: React.FC = () => {
-  const schoolId = useAuthStore((s) => s.schoolId);
-  const api = USE_MOCK ? mockApi : realApi(schoolId);
+  const schoolId = useAuthStore((s) => s.schoolId); // schoolId 가져오기
 
-  const [classes, setClasses] = useState<ClassInfo[]>([]);
-  const [selectedClass, setSelectedClass] = useState<ClassInfo | null>(null);
-  const [students, setStudents] = useState<StudentInfo[]>([]);
-  const [candidateStudents, setCandidateStudents] = useState<StudentInfo[]>([]);
-  const [homeroom, setHomeroom] = useState<TeacherInfo | null>(null);
-  const [candidateTeachers, setCandidateTeachers] = useState<TeacherInfo[]>([]);
-  const [isDirty, setIsDirty] = useState(false);
+  const [classes, setClasses] = useState<ClassInfo[]>([]); // 학급 목록
+  const [selectedClass, setSelectedClass] = useState<ClassInfo | null>(null); // 선택된 학급
+  const [students, setStudents] = useState<StudentInfo[]>([]); // 현재 학생 목록
+  const [candidateStudents, setCandidateStudents] = useState<StudentInfo[]>([]); // 추가 가능한 학생 목록
+  const [homeroom, setHomeroom] = useState<TeacherInfo | null>(null); // 현재 담임
+  const [candidateTeachers, setCandidateTeachers] = useState<TeacherInfo[]>([]); // 추가 가능한 교사 목록
+  const [isDirty, setIsDirty] = useState(false); // 수정 여부
   const [viewCategory, setViewCategory] = useState<"STUDENT" | "TEACHER">(
     "STUDENT"
-  );
-  const [searchCurStu, setSearchCurStu] = useState("");
-  const [searchCandStu, setSearchCandStu] = useState("");
-  const [searchCandTch, setSearchCandTch] = useState("");
-  const [showReset, setShowReset] = useState(false);
-  const [resetForm, setResetForm] = useState({ g1: "", g2: "", g3: "" });
+  ); // 현재 보이는 카테고리
+  const [searchCurStu, setSearchCurStu] = useState(""); // 현재 학생 검색
+  const [searchCandStu, setSearchCandStu] = useState(""); // 추가 가능 학생 검색
+  const [searchCandTch, setSearchCandTch] = useState(""); // 추가 가능 교사 검색
+  const [showReset, setShowReset] = useState(false); // 반 초기화 모달 표시 여부
+  const [resetForm, setResetForm] = useState({ g1: "", g2: "", g3: "" }); // 반 수 입력 값
 
-  const sortByGrade = (arr: ClassInfo[]) =>
-    arr.sort((a, b) => a.grade - b.grade || a.gradeClass - b.gradeClass);
-
+  // 학급 목록 가져오기
   useEffect(() => {
-    api.getClassList().then((list) => setClasses(sortByGrade(list)));
-  }, [api]);
+    const fetchClassList = async () => {
+      try {
+        const response = await axiosInstance.get(
+          `/school/${schoolId}/users/class`
+        );
+        setClasses(response.data.data); // 학급 데이터 설정
+      } catch (error) {
+        console.error("학급 목록 가져오기 실패:", error);
+      }
+    };
 
+    fetchClassList();
+  }, [schoolId]);
+
+  // 학급 선택 시 학생 목록, 추가 가능한 학생 목록, 담임 교사, 추가 가능한 교사 목록 갱신
   const refresh = useCallback(
     async (cls: ClassInfo) => {
-      const [inClass, unassignedStudents, homeroomTeacher, unassignedTeachers] =
-        await Promise.all([
-          api.getStudentsInClass(cls.classId),
-          api.getUnassignedStudents(),
-          api.getHomeroomTeacher(cls.classId),
-          api.getUnassignedTeachers(),
-        ]);
+      try {
+        const [inClass, unassignedStudents, homeroomResponse] =
+          await Promise.all([
+            axiosInstance.get(`/school/${schoolId}/class/${cls.classId}/students`),
+            axiosInstance.get(`/school/${schoolId}/students/unassigned`),
+            axiosInstance.get(`/school/${schoolId}/class/${cls.classId}/homeroom`),
+          ]);
 
-      setStudents(
-        inClass
-          .sort((a: StudentInfo, b: StudentInfo) =>
-            a.name.localeCompare(b.name)
-          )
-          .map((s: StudentInfo, i: number) => ({ ...s, number: i + 1 }))
-      );
-      setCandidateStudents(
-        unassignedStudents.sort((a: StudentInfo, b: StudentInfo) =>
-          a.name.localeCompare(b.name)
-        )
-      );
-      setHomeroom(homeroomTeacher);
-      setCandidateTeachers(
-        unassignedTeachers.sort((a: TeacherInfo, b: TeacherInfo) =>
-          a.name.localeCompare(b.name)
-        )
-      );
+        setStudents(inClass.data.data); // 현재 학생 목록 설정
+        setCandidateStudents(unassignedStudents.data.data); // 추가 가능 학생 목록 설정
+
+        // Update homeroom and non-homeroom teachers
+        const homeroomTeacherData = homeroomResponse.data.data.homeroom;
+        const nonHomeroomTeachers = homeroomResponse.data.data.notHomeroom;
+
+        setHomeroom(homeroomTeacherData); // 담임 교사 설정
+        setCandidateTeachers(nonHomeroomTeachers); // 추가 가능한 교사 목록 설정
+      } catch (error) {
+        console.error("학생/교사 목록 갱신 실패:", error);
+      }
     },
-    [api]
+    [schoolId]
   );
 
+  // 학급 선택 후 해당 학급에 대한 정보 갱신
   useEffect(() => {
     if (selectedClass) refresh(selectedClass);
   }, [selectedClass, refresh]);
 
-  const addStudent = async (stu: StudentInfo) => {
-    if (!selectedClass) return;
-    await api.addStudentToClass(selectedClass.classId, stu.studentId);
-    setIsDirty(true);
-    refresh(selectedClass);
+  // 학생 추가
+  const addStudent = (stu: StudentInfo) => {
+    if (!students.some((s) => s.studentId === stu.studentId)) {
+      setStudents([...students, stu]);
+      setIsDirty(true); // 수정 상태로 표시
+    }
   };
 
-  const removeStudent = async (sid: number) => {
-    if (!selectedClass) return;
-    await api.removeStudentFromClass(sid);
-    setIsDirty(true);
-    refresh(selectedClass);
+  // 학생 제거
+  const removeStudent = (stuId: number) => {
+    const updatedStudents = students.filter(
+      (student) => student.studentId !== stuId
+    );
+    setStudents(updatedStudents);
+    setIsDirty(true); // 수정 상태로 표시
   };
 
-  const addTeacher = async (t: TeacherInfo) => {
-    if (!selectedClass) return;
-    await api.assignHomeroom(selectedClass.classId, t.teacherId);
-    setIsDirty(true);
-    refresh(selectedClass);
+  // 교사 추가
+  const addTeacher = (t: TeacherInfo) => {
+    if (!homeroom) {
+      setHomeroom(t);
+      setIsDirty(true); // 수정 상태로 표시
+    }
   };
 
-  const removeTeacher = async () => {
-    if (!selectedClass) return;
-    await api.removeHomeroom(selectedClass.classId);
-    setIsDirty(true);
-    refresh(selectedClass);
+  // 교사 제거
+  const removeTeacher = () => {
+    setHomeroom(null);
+    setIsDirty(true); // 수정 상태로 표시
   };
 
+  // 반 저장
   const handleSave = async () => {
     if (!selectedClass) return;
-    if (USE_MOCK) {
-      alert("Mock 모드: 서버 전송 생략");
+
+    // 학생 추가/제거 처리
+    const addedStudentIds = students
+      .filter((student) => student.classId === selectedClass.classId)
+      .map((student) => student.studentId);
+
+    const removedStudentIds = students
+      .filter((student) => student.classId !== selectedClass.classId)
+      .map((student) => student.studentId);
+
+    try {
+      // 1. 반 학생 관리 저장
+      if (addedStudentIds.length || removedStudentIds.length) {
+        await axiosInstance.patch(
+          `/school/${schoolId}/users/class/${selectedClass.classId}/managestudent`,
+          {
+            addedStudentIds,
+            removedStudentIds,
+          }
+        );
+        console.log("반 학생 저장 완료");
+      }
+
+      // 2. 반 담임 관리 저장
+      if (homeroom) {
+        await axiosInstance.patch(
+          `/school/${schoolId}/users/class/${selectedClass.classId}/manageteacher`,
+          {
+            newHomeroomTeacherId: homeroom.teacherId,
+          }
+        );
+        console.log("반 교사 저장 완료");
+      }
+
       setIsDirty(false);
+      alert("저장되었습니다!");
+    } catch (error) {
+      console.error("반 저장 실패:", error);
+      alert("반 저장 중 오류가 발생했습니다.");
+    }
+  };
+
+  // 반 초기화
+  const handleResetClass = async () => {
+    const n1 = Number(resetForm.g1) || 0;
+    const n2 = Number(resetForm.g2) || 0;
+    const n3 = Number(resetForm.g3) || 0;
+
+    if (n1 === 0 && n2 === 0 && n3 === 0) {
+      alert("반 수를 입력하세요");
       return;
     }
-    await axiosInstance.put("/class/overwrite", {
-      classId: selectedClass.classId,
-      students: students.map(({ studentId }) => studentId),
-      homeroomId: homeroom?.teacherId ?? null,
-    });
-    setIsDirty(false);
-    alert("저장되었습니다!");
+
+    try {
+      const response = await axiosInstance.post(
+        `/school/${schoolId}/users/class`,
+        {
+          grade1: n1,
+          grade2: n2,
+          grade3: n3,
+        }
+      );
+
+      if (response.data.status === 201) {
+        alert("반이 성공적으로 생성되었습니다.");
+        const list = await axiosInstance.get(
+          `/school/${schoolId}/users/class`
+        );
+        setClasses(list.data.data);
+      } else {
+        alert("반 초기화에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("반 초기화 실패:", error);
+      alert("반 초기화 중 오류가 발생했습니다.");
+    } finally {
+      setShowReset(false);
+      setResetForm({ g1: "", g2: "", g3: "" });
+    }
   };
 
   return (
@@ -296,8 +275,6 @@ const AdminAssignPage: React.FC = () => {
               <>
                 {/* 현재 학생 */}
                 <ScrollBox>
-                  {/* 검색창 */}
-
                   <StudentTable style={{ width: "24rem" }}>
                     <thead>
                       <tr>
@@ -488,55 +465,7 @@ const AdminAssignPage: React.FC = () => {
 
             <ModalActionRow>
               <ModalBtn onClick={() => setShowReset(false)}>취소</ModalBtn>
-              <ModalBtn
-                onClick={async () => {
-                  /* 숫자 검증 */
-                  const n1 = Number(resetForm.g1) || 0;
-                  const n2 = Number(resetForm.g2) || 0;
-                  const n3 = Number(resetForm.g3) || 0;
-
-                  /* 아무 값도 없으면 종료 */
-                  if (n1 === 0 && n2 === 0 && n3 === 0) {
-                    alert("반 수를 입력하세요");
-                    return;
-                  }
-
-                  if (USE_MOCK) {
-                    /* mock 배열 덮어쓰기 */
-                    mockClasses.length = 0;
-                    const pushRange = (grade: number, cnt: number) => {
-                      for (let i = 1; i <= cnt; i++)
-                        mockClasses.push({
-                          classId: grade * 100 + i, // 예: 101,102…
-                          grade,
-                          gradeClass: i,
-                        });
-                    };
-                    pushRange(1, n1);
-                    pushRange(2, n2);
-                    pushRange(3, n3);
-                    setClasses(sortByGrade([...mockClasses]));
-                  } else {
-                    /* 실제 API라면: 전체 삭제→일괄 생성 엔드포인트가 있으면 좋고,
-                 없으면 반복 POST */
-                    await axiosInstance.post(
-                      `/school/${schoolId}/class/reset`,
-                      {
-                        grade1: n1,
-                        grade2: n2,
-                        grade3: n3,
-                      }
-                    );
-                    const list = await api.getClassList();
-                    setClasses(sortByGrade(list));
-                  }
-                  setSelectedClass(null);
-                  setShowReset(false);
-                  setResetForm({ g1: "", g2: "", g3: "" });
-                }}
-              >
-                확인
-              </ModalBtn>
+              <ModalBtn onClick={handleResetClass}>확인</ModalBtn>
             </ModalActionRow>
           </ModalBox>
         </ModalBackdrop>

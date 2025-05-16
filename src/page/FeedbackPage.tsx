@@ -33,10 +33,16 @@ const FeedbackPage: React.FC = () => {
     ATTENDANCE: "",
     ATTITUDE: "",
   });
+  const [feedbackTimes, setFeedbackTimes] = useState({
+    GRADE: "",
+    BEHAVIOR: "",
+    ATTENDANCE: "",
+    ATTITUDE: "",
+  });
   const selectedStudent = useStudentStore((state) => state.selectedStudent);
   const role = useAuthStore((state) => state.role);
   const schoolId = useAuthStore((state) => state.schoolId);
-  const [schoolYear, setSchoolYear] = useState("1");  
+  const [schoolYear, setSchoolYear] = useState("1");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // 편집 모드 진입 시 모든 폼이 비어있는지 여부를 저장
@@ -69,12 +75,15 @@ const FeedbackPage: React.FC = () => {
           ATTENDANCE: "",
           ATTITUDE: "",
         };
+        const newUpdateTimes = { ...newFeedbacks };    
 
         response.data.data.forEach((item: FeedbackItem) => {
           newFeedbacks[item.category] = item.content;
+          newUpdateTimes[item.category] = item.updatedAt; 
         });
 
         setFeedbacks(newFeedbacks);
+        setFeedbackTimes(newUpdateTimes); 
       } else {
         setError("피드백 데이터를 불러오는데 실패했습니다.");
       }
@@ -146,10 +155,29 @@ const FeedbackPage: React.FC = () => {
           // console.log("피드백 저장 응답:", response.data);
         } else {
           // 경우 2: 편집 모드 진입 시 하나 이상의 폼이 채워져 있음 - PATCH 요청
-         
+
+          /** ① 카테고리 영→한 매핑 */
+          const catMap: Record<keyof typeof feedbacks, string> = {
+            GRADE: "GRADE",
+            BEHAVIOR: "BEHAVIOR",
+            ATTENDANCE: "ATTENDANCE",
+            ATTITUDE: "ATTITUDE",
+          };
+
+          /** ② PATCH 전용 payload – updatedAt 포함 */
+          const patched = (
+            Object.keys(feedbacks) as (keyof typeof feedbacks)[]
+          ).map((k) => ({
+            category: catMap[k],
+            content: feedbacks[k],
+            updatedAt: feedbackTimes[k],
+          }));
+
+          console.log("피드백 PATCH 데이터:", patched);
+
           response = await axios.patch(
             `/api/v1/school/${schoolId}/feedback/students/${selectedStudent.studentId}?schoolYear=${schoolYear}`,
-            { feedbacks: feedbackData },
+            { feedbacks: patched },
             config
           );
         }
