@@ -144,7 +144,8 @@ const SignInPage: React.FC = () => {
   };
 
   const handleKakaoLogin = () => {
-    window.location.href = "http://3.38.130.125:3000/api/v1/auth/kakao/sign-in";
+    window.location.href =
+      "http://3.38.130.125:3000/api/v1/auth/kakao/sign-in/callback";
   };
 
   //카카오 리디렉션 후 전역 상태 세팅 및 추가정보 분기

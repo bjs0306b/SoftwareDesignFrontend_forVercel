@@ -45,6 +45,7 @@ interface StudentGrade {
       name: string;
     };
   };
+  updatedAt?: string;
 }
 
 interface StudentInfo {
@@ -145,6 +146,7 @@ const GradePage: React.FC = () => {
           return {
             subject,
             score: found?.score,
+            updatedAt: found?.updatedAt,
           };
         });
 
@@ -165,6 +167,7 @@ const GradePage: React.FC = () => {
           return {
             semester: `${schoolYear}학년 ${semester}학기`,
             score: found?.score,
+            updatedAt: found?.updatedAt,
           };
         });
         setStudentGrades(merged);
@@ -246,6 +249,7 @@ const GradePage: React.FC = () => {
               schoolYear: Number(selectedGrade),
               semester: Number(selectedSemester),
               score: Number(g.score),
+              updatedAt: found.updatedAt,
             });
           }
         } else {

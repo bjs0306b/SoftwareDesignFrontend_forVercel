@@ -122,7 +122,8 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
   };
 
   const handleKakaoLogin = () => {
-    window.location.href = "http://3.38.130.125:3000/api/v1/auth/kakao/sign-in";
+    window.location.href =
+      "http://3.38.130.125:3000/api/v1/auth/kakao/connect/callback";
   };
 
   return (
@@ -187,7 +188,10 @@ const MyPage: React.FC<MyPageProps> = ({ onClose }) => {
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
             />
-            <ToggleButton  data-testid="password-toggle-visibility" onClick={() => setShowPassword(!showPassword)}>
+            <ToggleButton
+              data-testid="password-toggle-visibility"
+              onClick={() => setShowPassword(!showPassword)}
+            >
               {showPassword ? <FiEyeOff /> : <FiEye />}
             </ToggleButton>
           </InputArea>
