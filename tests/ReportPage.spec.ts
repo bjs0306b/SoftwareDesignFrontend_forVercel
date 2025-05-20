@@ -10,7 +10,7 @@ test.describe("homeroom teacher", () => {
     await page.waitForTimeout(350);
     await page.getByText("인천중학교").click();
     await page
-      .getByPlaceholder("example@email.com")
+      .getByPlaceholder("아이디를 입력하세요")
       .fill("인천중학교110@naver.com");
     await page.getByPlaceholder("비밀번호를 입력하세요").fill("1");
     await page.getByRole("button", { name: "로그인" }).click();

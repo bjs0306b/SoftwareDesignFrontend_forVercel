@@ -17,7 +17,7 @@ test.describe("homeroom teacher", () => {
 
     // 아이디/비번 입력
     await page
-      .getByPlaceholder("example@email.com")
+      .getByPlaceholder("아이디를 입력하세요")
       .fill("인천중학교110@naver.com");
     await page.getByPlaceholder("비밀번호를 입력하세요").fill("1");
 
@@ -245,5 +245,140 @@ test.describe("homeroom teacher", () => {
 
   });
   
+  
+});
+
+test.describe("teacher", () => {
+  test.beforeEach(async ({ page, baseURL }) => {
+    // 앱 진입 (baseURL: playwright.config.ts에 설정된 URL)
+    await page.goto(baseURL ?? "http://localhost:5173");
+
+    // 이메일 로그인 모드로 전환
+    await page.getByText("이메일로 로그인").click();
+
+    // 학교명 검색 & 선택 (디바운스 고려)
+    const schoolInput = page.getByPlaceholder("학교명을 검색하세요");
+    await expect(schoolInput).toBeVisible();
+    await schoolInput.fill("인천");
+    await page.waitForTimeout(350); // 디바운스 시간 대기
+    await page.getByText("인천중학교").click();
+
+    // 아이디/비번 입력
+    await page
+      .getByPlaceholder("아이디를 입력하세요")
+      .fill("202500081");
+    await page.getByPlaceholder("비밀번호를 입력하세요").fill("893054");
+
+    // 로그인 버튼 클릭
+    await page.getByRole("button", { name: "로그인" }).click();
+
+    // 학생 리스트 뜰 때까지 대기
+    await page.waitForSelector(
+      '[data-testid="student-list"] tbody tr:has-text("김민준")',
+      { state: "visible", timeout: 5000 }
+    );
+
+    // 상담 페이지로 이동
+    await page.getByTestId("tab-counseling").click();
+    await expect(page).toHaveURL("/counseling");
+  });
+
+  test("진입 시 가이드 메시지가 표시된다", async ({ page }) => {
+    await expect(
+      page.getByText("좌측 검색창에서 성적을 조회할 학생을 검색하세요.")
+    ).toBeVisible();
+  });
+
+
+  
+});
+
+test.describe("parent", () => {
+  test.beforeEach(async ({ page, baseURL }) => {
+    // 앱 진입 (baseURL: playwright.config.ts에 설정된 URL)
+    await page.goto(baseURL ?? "http://localhost:5173");
+
+    // 이메일 로그인 모드로 전환
+    await page.getByText("이메일로 로그인").click();
+
+    // 학교명 검색 & 선택 (디바운스 고려)
+    const schoolInput = page.getByPlaceholder("학교명을 검색하세요");
+    await expect(schoolInput).toBeVisible();
+    await schoolInput.fill("인천");
+    await page.waitForTimeout(350); // 디바운스 시간 대기
+    await page.getByText("인천중학교").click();
+
+    // 아이디/비번 입력
+    await page
+      .getByPlaceholder("아이디를 입력하세요")
+      .fill("인천중학교110@naver.com");
+    await page.getByPlaceholder("비밀번호를 입력하세요").fill("1");
+
+    // 로그인 버튼 클릭
+    await page.getByRole("button", { name: "로그인" }).click();
+
+    // 학생 리스트 뜰 때까지 대기
+    await page.waitForSelector(
+      '[data-testid="student-list"] tbody tr:has-text("김민준")',
+      { state: "visible", timeout: 5000 }
+    );
+
+    // 상담 페이지로 이동
+    await page.getByTestId("tab-counseling").click();
+    await expect(page).toHaveURL("/counseling");
+  });
+
+  test("진입 시 가이드 메시지가 표시된다", async ({ page }) => {
+    await expect(
+      page.getByText("좌측 검색창에서 성적을 조회할 학생을 검색하세요.")
+    ).toBeVisible();
+  });
+
+
+  
+});
+
+test.describe("student", () => {
+  test.beforeEach(async ({ page, baseURL }) => {
+    // 앱 진입 (baseURL: playwright.config.ts에 설정된 URL)
+    await page.goto(baseURL ?? "http://localhost:5173");
+
+    // 이메일 로그인 모드로 전환
+    await page.getByText("이메일로 로그인").click();
+
+    // 학교명 검색 & 선택 (디바운스 고려)
+    const schoolInput = page.getByPlaceholder("학교명을 검색하세요");
+    await expect(schoolInput).toBeVisible();
+    await schoolInput.fill("인천");
+    await page.waitForTimeout(350); // 디바운스 시간 대기
+    await page.getByText("인천중학교").click();
+
+    // 아이디/비번 입력
+    await page
+      .getByPlaceholder("아이디를 입력하세요")
+      .fill("202500082");
+    await page.getByPlaceholder("비밀번호를 입력하세요").fill("494413");
+
+    // 로그인 버튼 클릭
+    await page.getByRole("button", { name: "로그인" }).click();
+
+    // 학생 리스트 뜰 때까지 대기
+    await page.waitForSelector(
+      '[data-testid="student-list"] tbody tr:has-text("김민준")',
+      { state: "visible", timeout: 5000 }
+    );
+
+    // 상담 페이지로 이동
+    await page.getByTestId("tab-counseling").click();
+    await expect(page).toHaveURL("/counseling");
+  });
+
+  test("진입 시 가이드 메시지가 표시된다", async ({ page }) => {
+    await expect(
+      page.getByText("좌측 검색창에서 성적을 조회할 학생을 검색하세요.")
+    ).toBeVisible();
+  });
+
+
   
 });

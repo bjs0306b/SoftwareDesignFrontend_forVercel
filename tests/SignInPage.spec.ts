@@ -18,7 +18,7 @@ test.describe("homeroom teacher", () => {
 
     // 입력 폼 요소들
     await expect(page.getByPlaceholder("학교명을 검색하세요")).toBeVisible();
-    await expect(page.getByPlaceholder("example@email.com")).toBeVisible();
+    await expect(page.getByPlaceholder("아이디를 입력하세요")).toBeVisible();
     await expect(page.getByPlaceholder("비밀번호를 입력하세요")).toBeVisible();
     // 실제 로그인 버튼(SignButton 은 <button> 이므로 getByRole 사용 가능)
     await expect(page.getByRole("button", { name: "로그인" })).toBeVisible();
@@ -83,7 +83,7 @@ test.describe("homeroom teacher", () => {
 
     // 5) 아이디/비번 입력
     await page
-      .getByPlaceholder("example@email.com")
+      .getByPlaceholder("아이디를 입력하세요")
       .fill("인천중학교110@naver.com");
     await page.getByPlaceholder("비밀번호를 입력하세요").fill("1");
 

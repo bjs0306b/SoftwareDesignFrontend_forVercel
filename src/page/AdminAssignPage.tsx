@@ -26,23 +26,46 @@ import {
 } from "./AdminAssignPage.styled";
 import { useAuthStore } from "../stores/authStore";
 
+const mapStudent = (
+  raw: any,
+  fallbackClassId: number | null = null
+): StudentInfo => ({
+  studentId: raw.studentId,
+  name: raw.user?.name ?? "",
+  number: 0,
+  classId: raw.classId ?? fallbackClassId,
+});
+
+const mapTeacher = (raw: any): TeacherInfo => ({
+  teacherId: raw.teacherId,
+  subject: raw.subject,
+  name: raw.user?.name ?? "",
+});
+
+// 학생 배열을 이름순(한글)으로 정렬하고 1번부터 번호 부여
+const sortAndNumber = (list: StudentInfo[]): StudentInfo[] =>
+  list
+    .slice() // 원본 보호
+    .sort((a, b) => a.name.localeCompare(b.name, "ko-KR"))
+    .map((s, idx) => ({ ...s, number: idx + 1 }));
+
 interface ClassInfo {
   classId: number;
   grade: number;
   gradeClass: number;
 }
-interface TeacherInfo {
-  teacherId: number;
-  name: string;
-  subject: string;
-  loginId?: string;
-  email?: string;
-}
+
 interface StudentInfo {
   studentId: number;
+  number: number | null;
   name: string;
   classId: number | null;
-  number?: number; // ← 번호(1,2,3…)
+}
+
+interface TeacherInfo {
+  teacherId: number;
+  subject: string;
+  name: string;
 }
 
 const AdminAssignPage: React.FC = () => {
@@ -84,24 +107,39 @@ const AdminAssignPage: React.FC = () => {
   const refresh = useCallback(
     async (cls: ClassInfo) => {
       try {
-        const [inClass, unassignedStudents, homeroomResponse] =
-          await Promise.all([
-            axiosInstance.get(`/school/${schoolId}/class/${cls.classId}/students`),
-            axiosInstance.get(`/school/${schoolId}/students/unassigned`),
-            axiosInstance.get(`/school/${schoolId}/class/${cls.classId}/homeroom`),
-          ]);
+        const [inClassRes, unassignedRes, homeroomRes] = await Promise.all([
+          axiosInstance.get(
+            `/school/${schoolId}/class/${cls.classId}/students`
+          ),
+          axiosInstance.get(`/school/${schoolId}/students/unassigned`),
+          axiosInstance.get(
+            `/school/${schoolId}/users/class/${cls.classId}/homeroom`
+          ),
+        ]);
 
-        setStudents(inClass.data.data); // 현재 학생 목록 설정
-        setCandidateStudents(unassignedStudents.data.data); // 추가 가능 학생 목록 설정
+        console.log("반 학생", inClassRes.data.data);
+        console.log("추가 가능 학생", unassignedRes.data.data);
+        console.log("교사", homeroomRes.data.data);
 
-        // Update homeroom and non-homeroom teachers
-        const homeroomTeacherData = homeroomResponse.data.data.homeroom;
-        const nonHomeroomTeachers = homeroomResponse.data.data.notHomeroom;
+        // ---------- 학생 ----------
+        setStudents(
+          sortAndNumber(
+            inClassRes.data.data.map((st: any) => mapStudent(st, cls.classId))
+          )
+        );
 
-        setHomeroom(homeroomTeacherData); // 담임 교사 설정
-        setCandidateTeachers(nonHomeroomTeachers); // 추가 가능한 교사 목록 설정
-      } catch (error) {
-        console.error("학생/교사 목록 갱신 실패:", error);
+        setCandidateStudents(
+          unassignedRes.data.data.map((st: any) => mapStudent(st, null))
+        );
+
+        // ---------- 교사 ----------
+        const rawHomeroom = homeroomRes.data.data.homeroom;
+        const rawOthers = homeroomRes.data.data.notHomeroom;
+
+        setHomeroom(rawHomeroom ? mapTeacher(rawHomeroom) : null);
+        setCandidateTeachers(rawOthers.map(mapTeacher));
+      } catch (err) {
+        console.error("학생/교사 목록 갱신 실패:", err);
       }
     },
     [schoolId]
@@ -114,33 +152,46 @@ const AdminAssignPage: React.FC = () => {
 
   // 학생 추가
   const addStudent = (stu: StudentInfo) => {
-    if (!students.some((s) => s.studentId === stu.studentId)) {
-      setStudents([...students, stu]);
-      setIsDirty(true); // 수정 상태로 표시
-    }
+    if (!selectedClass) return;
+    setStudents((prev) =>
+      sortAndNumber([...prev, { ...stu, classId: selectedClass.classId }])
+    );
+    setCandidateStudents((prev) =>
+      prev.filter((s) => s.studentId !== stu.studentId)
+    );
+    setIsDirty(true);
   };
 
-  // 학생 제거
+  // 학생생 제거
   const removeStudent = (stuId: number) => {
-    const updatedStudents = students.filter(
-      (student) => student.studentId !== stuId
+    setStudents((prev) =>
+      sortAndNumber(prev.filter((s) => s.studentId !== stuId))
     );
-    setStudents(updatedStudents);
-    setIsDirty(true); // 수정 상태로 표시
+    setCandidateStudents((prev) => {
+      const removed = students.find((s) => s.studentId === stuId);
+      return removed
+        ? [...prev, { ...removed, classId: null, number: 0 }]
+        : prev;
+    });
+    setIsDirty(true);
   };
 
   // 교사 추가
   const addTeacher = (t: TeacherInfo) => {
-    if (!homeroom) {
-      setHomeroom(t);
-      setIsDirty(true); // 수정 상태로 표시
-    }
+    if (homeroom) return; // 이미 담임 있으면 무시
+    setHomeroom(t);
+    setCandidateTeachers((prev) =>
+      prev.filter((tc) => tc.teacherId !== t.teacherId)
+    );
+    setIsDirty(true);
   };
 
   // 교사 제거
   const removeTeacher = () => {
+    if (!homeroom) return;
+    setCandidateTeachers((prev) => [...prev, homeroom]);
     setHomeroom(null);
-    setIsDirty(true); // 수정 상태로 표시
+    setIsDirty(true);
   };
 
   // 반 저장
@@ -211,9 +262,7 @@ const AdminAssignPage: React.FC = () => {
 
       if (response.data.status === 201) {
         alert("반이 성공적으로 생성되었습니다.");
-        const list = await axiosInstance.get(
-          `/school/${schoolId}/users/class`
-        );
+        const list = await axiosInstance.get(`/school/${schoolId}/users/class`);
         setClasses(list.data.data);
       } else {
         alert("반 초기화에 실패했습니다.");
@@ -291,7 +340,7 @@ const AdminAssignPage: React.FC = () => {
                       {students
                         .filter((s) =>
                           s.name
-                            .toLowerCase()
+                            ?.toLowerCase()
                             .includes(searchCurStu.toLowerCase())
                         )
                         .map((st) => (
@@ -334,7 +383,7 @@ const AdminAssignPage: React.FC = () => {
                       {candidateStudents
                         .filter((s) =>
                           s.name
-                            .toLowerCase()
+                            ?.toLowerCase()
                             .includes(searchCandStu.toLowerCase())
                         )
                         .map((s) => (
@@ -411,7 +460,7 @@ const AdminAssignPage: React.FC = () => {
                       {candidateTeachers
                         .filter((t) =>
                           t.name
-                            .toLowerCase()
+                            ?.toLowerCase()
                             .includes(searchCandTch.toLowerCase())
                         )
                         .map((t) => (

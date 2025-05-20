@@ -17,7 +17,7 @@ test.describe("homeroom teacher", () => {
 
     // 아이디/비번 입력
     await page
-      .getByPlaceholder("example@email.com")
+      .getByPlaceholder("아이디를 입력하세요")
       .fill("인천중학교110@naver.com");
     await page.getByPlaceholder("비밀번호를 입력하세요").fill("1");
 
